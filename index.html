@@ -2,10 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Field JHA & Stop Work Authority App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Field JHA & Safety App</title>
+
+  <!-- PWA / Mobile App Meta Tags (iOS & Android) -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Field JHA" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230f172a'/><text y='68' x='50' text-anchor='middle' font-size='55'>⚡</text></svg>" />
+
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    body {
+      -webkit-tap-highlight-color: transparent;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    /* Prevent iOS Safari auto-zoom on input tap by keeping inputs >= 16px */
+    input, select, textarea {
+      font-size: 16px !important;
+    }
     @media print {
       .no-print { display: none !important; }
       .print-only { display: block !important; }
@@ -14,22 +32,65 @@
     .print-only { display: none; }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen pb-16">
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-20">
 
   <!-- TOP HEADER -->
   <header class="bg-slate-950 border-b border-slate-800 sticky top-0 z-30 no-print">
-    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
       <div>
-        <span class="text-xs font-bold uppercase tracking-widest text-amber-400">Pumpline / Terraline / SewerSgt.</span>
-        <h1 class="text-lg font-extrabold text-white">Guided Field JHA & Safety Audit</h1>
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-bold uppercase tracking-widest text-amber-400">Tradeworks / Pumpline / Amped</span>
+          <span id="offlineBadge" class="hidden bg-slate-700 text-slate-200 text-[10px] font-bold px-1.5 py-0.5 rounded">OFFLINE READY</span>
+        </div>
+        <h1 class="text-base sm:text-lg font-extrabold text-white">Guided Field JHA & Safety Audit</h1>
       </div>
-      <button onclick="triggerManualSWA()" id="swaHeaderBtn" class="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-3 py-2 rounded-lg shadow flex items-center gap-1.5 uppercase tracking-wider">
-        <span>🛑 Stop Work (SWA)</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <button onclick="openInstallHelp()" id="installAppBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-3 py-2 rounded-lg shadow flex items-center gap-1">
+          <span>📲 Install App</span>
+        </button>
+        <button onclick="triggerManualSWA()" id="swaHeaderBtn" class="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-3 py-2 rounded-lg shadow flex items-center gap-1 uppercase">
+          <span>🛑 SWA</span>
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="max-w-3xl mx-auto px-4 pt-5 space-y-6 no-print">
+  <!-- INSTALL APP MODAL (Works for both Android & iPhone) -->
+  <div id="installModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 no-print">
+    <div class="bg-slate-800 border border-slate-600 rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+        <h3 class="text-base font-extrabold text-amber-400">📲 Install Field JHA on Your Phone</h3>
+        <button onclick="closeInstallHelp()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+      </div>
+      <p class="text-xs text-slate-300">Installing puts this JHA app right on your phone's home screen so it opens full-screen and works offline with zero cell service.</p>
+
+      <div id="nativeInstallSection" class="hidden">
+        <button onclick="triggerNativeInstall()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm shadow">
+          ⬇️ Tap Here to Install App Now
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700">
+          <strong class="text-white block mb-1">🍎 iPhone / iPad (Safari):</strong>
+          1. Tap the <strong>Share</strong> button <span class="inline-block bg-slate-700 px-1.5 py-0.5 rounded">⬆️</span> at the bottom of Safari.<br/>
+          2. Scroll down and tap <strong>"Add to Home Screen"</strong>.<br/>
+          3. Tap <strong>Add</strong> in the top corner.
+        </div>
+        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700">
+          <strong class="text-white block mb-1">🤖 Android (Chrome):</strong>
+          1. Tap the <strong>3-dot menu (⋮)</strong> in the top right of Chrome.<br/>
+          2. Tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.
+        </div>
+      </div>
+
+      <button onclick="closeInstallHelp()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs">
+        Got It
+      </button>
+    </div>
+  </div>
+
+  <main class="max-w-3xl mx-auto px-4 pt-4 space-y-5 no-print">
 
     <!-- STOP WORK AUTHORITY (SWA) ACTIVE BANNER -->
     <section id="swaBanner" class="hidden bg-red-950 border-2 border-red-500 rounded-xl p-4 shadow-xl">
@@ -53,23 +114,23 @@
     </section>
 
     <!-- STEP 1: JOB INFO -->
-    <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-4">
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-3">
       <div class="flex items-center justify-between border-b border-slate-700 pb-2">
         <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400">Step 1: Jobsite & Crew Info</h2>
-        <span class="text-xs text-slate-400">Auto-fills Job Note & Print Sheet</span>
+        <span class="text-[11px] text-slate-400">Auto-saves on phone</span>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Date</label>
-          <input type="date" id="jobDate" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white" />
+          <input type="date" id="jobDate" onchange="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white" />
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Work Order / Jobsite #</label>
-          <input type="text" id="workOrder" placeholder="e.g., WO-4829 / Smith Well" oninput="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white" />
+          <input type="text" id="workOrder" placeholder="e.g., WO-4829 / Smith Well" oninput="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white" />
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Crew Members</label>
-          <input type="text" id="crewNames" placeholder="e.g., J. Miller, T. Davis" oninput="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white" />
+          <input type="text" id="crewNames" placeholder="e.g., J. Miller, T. Davis" oninput="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white" />
         </div>
       </div>
     </section>
@@ -78,11 +139,11 @@
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-4">
       <div>
         <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400">Step 2: Select Work Scope & System Type</h2>
-        <p class="text-xs text-slate-400 mt-0.5">Tap all that apply today. The app will automatically ask the right safety questions below.</p>
+        <p class="text-xs text-slate-400 mt-0.5">Tap all that apply today. The app automatically selects the right safety questions below.</p>
       </div>
 
       <div>
-        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Primary Work Scope (Select all that apply):</label>
+        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Primary Work Scope (Tap all that apply):</label>
         <div id="scopeContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
       </div>
 
@@ -103,11 +164,9 @@
 
     <!-- STEP 3: CONDITIONAL SITE HAZARD QUESTIONS -->
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-700 pb-2">
-        <div>
-          <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400">Step 3: Guided Hazard Scan & SWA Checks</h2>
-          <p class="text-xs text-slate-400">Pre-checked based on your scope. Tap YES or NO for each site condition.</p>
-        </div>
+      <div class="border-b border-slate-700 pb-2">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400">Step 3: Guided Hazard Scan & SWA Checks</h2>
+        <p class="text-xs text-slate-400">Pre-checked based on your scope. Tap YES or NO for each condition.</p>
       </div>
       <div id="questionsContainer" class="space-y-3"></div>
     </section>
@@ -116,7 +175,7 @@
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-4">
       <div>
         <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400">Step 4: Required Controls & PPE (Auto-Selected)</h2>
-        <p class="text-xs text-slate-400">Based on your answers above, confirm these controls and PPE are active on site.</p>
+        <p class="text-xs text-slate-400">Confirm these controls and PPE are active on site.</p>
       </div>
 
       <div>
@@ -134,21 +193,21 @@
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-4">
       <div class="flex items-center justify-between border-b border-slate-700 pb-2">
         <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400">Step 5: Crew Tailboard & Job Note Output</h2>
-        <span id="auditStatusBadge" class="text-xs font-bold px-2.5 py-1 rounded bg-emerald-600 text-white">PASS - READY FOR WORK</span>
+        <span id="auditStatusBadge" class="text-xs font-bold px-2.5 py-1 rounded bg-emerald-600 text-white">PASS - READY</span>
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1">Auto-Generated Work Order Note (Tap Copy & Paste into Service App):</label>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Auto-Generated Work Order Note:</label>
         <textarea id="jobNoteOutput" rows="4" readonly class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs font-mono text-emerald-300"></textarea>
-        <div class="flex flex-wrap gap-2 mt-2">
-          <button onclick="copyJobNote()" id="copyBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow">
-            📋 Copy Job Note to Clipboard
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+          <button onclick="copyJobNote()" id="copyBtn" class="bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold text-xs py-3 px-4 rounded-xl shadow">
+            📋 Copy Job Note
           </button>
-          <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow">
-            🖨️ Print 1-Page Audit Sheet
+          <button onclick="shareJobNote()" class="bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white font-bold text-xs py-3 px-4 rounded-xl shadow">
+            📤 Share / Text Note
           </button>
-          <button onclick="resetForm()" class="bg-slate-900 hover:bg-slate-700 text-slate-300 font-semibold text-xs px-3 py-2.5 rounded-lg border border-slate-700 ml-auto">
-            Reset Form
+          <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs py-3 px-4 rounded-xl shadow">
+            🖨️ Print / Save PDF
           </button>
         </div>
       </div>
@@ -156,31 +215,37 @@
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-700">
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Lead Tech Sign-Off</label>
-          <input type="text" id="leadSign" placeholder="Type Full Name" oninput="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white" />
+          <input type="text" id="leadSign" placeholder="Type Full Name" oninput="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white" />
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Auditor Name (If Observed)</label>
-          <input type="text" id="auditorName" placeholder="Optional (Thursday Audit)" oninput="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white" />
+          <input type="text" id="auditorName" placeholder="Optional (Thursday Audit)" oninput="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white" />
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-300 mb-1">Audit Result</label>
-          <select id="auditResult" onchange="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white">
+          <select id="auditResult" onchange="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2.5 text-white">
             <option value="PASS">PASS</option>
             <option value="COACHED">COACHED</option>
             <option value="STOP WORK">STOP WORK</option>
           </select>
         </div>
       </div>
+
+      <div class="pt-2 flex justify-end">
+        <button onclick="resetForm()" class="bg-slate-900 hover:bg-slate-700 text-slate-300 font-semibold text-xs px-4 py-2.5 rounded-lg border border-slate-700">
+          🔄 Reset Form for Next Job
+        </button>
+      </div>
     </section>
 
   </main>
 
-  <!-- 1-PAGE PRINTABLE SHEET (FOR TRUCKS OR THURSDAY AUDITOR CLIPBOARD) -->
+  <!-- 1-PAGE PRINTABLE SHEET -->
   <section class="print-only p-4 max-w-4xl mx-auto text-black">
     <div class="border-b-2 border-black pb-2 mb-3 flex justify-between items-end">
       <div>
         <h1 class="text-lg font-bold uppercase">1-Page Field JHA & Safety Audit Sheet</h1>
-        <p class="text-xs">Pumpline / Terraline / Sewer Sgt. — Pre-Work Hazard Scan & SWA Verification</p>
+        <p class="text-xs">Tradeworks / Pumpline / Amped Pump & Controls — Pre-Work Hazard Scan & SWA Verification</p>
       </div>
       <div class="text-right text-xs">
         <div><strong>Date:</strong> <span id="printDate"></span></div>
@@ -219,7 +284,52 @@
   </section>
 
   <script>
-    // 1. WORK SCOPES (Combines Packet 1 + Manual 2.1)
+    // PWA SERVICE WORKER & INSTALL PROMPT LOGIC
+    let deferredPrompt = null;
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(() => {
+          document.getElementById('offlineBadge').classList.remove('hidden');
+        }).catch(() => {});
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('nativeInstallSection').classList.remove('hidden');
+    });
+
+    function openInstallHelp() {
+      if (deferredPrompt) {
+        triggerNativeInstall();
+      } else {
+        document.getElementById('installModal').classList.remove('hidden');
+      }
+    }
+
+    function closeInstallHelp() {
+      document.getElementById('installModal').classList.add('hidden');
+    }
+
+    async function triggerNativeInstall() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      closeInstallHelp();
+    }
+
+    // Hide install button if already running as installed standalone app
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('installAppBtn');
+        if (btn) btn.classList.add('hidden');
+      });
+    }
+
+    // JHA DATA & LOGIC
     const SCOPES = [
       { id: 'diagnostics', label: 'Diagnostics / Testing', boom: false },
       { id: 'pump_pull', label: 'Pump Pull / Replace', boom: true },
@@ -231,7 +341,6 @@
       { id: 'drilling', label: 'Water Well Drilling', boom: true }
     ];
 
-    // 2. SYSTEM ENVIRONMENTS (From Manual 2.1)
     const SYSTEMS = [
       { id: 'well', label: 'Well Water System' },
       { id: 'wastewater_sys', label: 'Wastewater System' },
@@ -239,7 +348,6 @@
       { id: 'cistern', label: 'Cistern System' }
     ];
 
-    // 3. CONDITIONAL HAZARD QUESTIONS (With High-Risk Stop Work Authority Gatekeepers)
     const HAZARDS = [
       {
         id: 'electrical_loto',
@@ -395,11 +503,10 @@
       'Full Body Harness & Retrieval Line'
     ];
 
-    // APPLICATION STATE
     let selectedScopes = new Set(['pump_pull']);
     let selectedSystems = new Set(['well']);
-    let activeHazards = {}; // id -> boolean
-    let swaPassed = {};     // id -> boolean (true = safe, false = SWA triggered)
+    let activeHazards = {};
+    let swaPassed = {};
     let manualSWA = false;
     let activeControls = new Set();
     let activePPE = new Set(['Safety Glasses', 'Gloves', 'Boots']);
@@ -416,8 +523,8 @@
         const active = selectedScopes.has(s.id);
         return `
           <button type="button" onclick="toggleScope('${s.id}')"
-            class="px-3 py-2.5 rounded-lg text-xs font-bold border text-left transition flex items-center justify-between ${
-              active ? 'bg-amber-500 text-slate-950 border-amber-400 shadow' : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500'
+            class="px-3 py-3 rounded-xl text-xs font-bold border text-left transition flex items-center justify-between ${
+              active ? 'bg-amber-500 text-slate-950 border-amber-400 shadow' : 'bg-slate-900 text-slate-300 border-slate-700'
             }">
             <span>${s.label}</span>
             <span>${active ? '✓' : ''}</span>
@@ -430,8 +537,8 @@
         const active = selectedSystems.has(sys.id);
         return `
           <button type="button" onclick="toggleSystem('${sys.id}')"
-            class="px-3 py-2 rounded-lg text-xs font-bold border text-left transition flex items-center justify-between ${
-              active ? 'bg-sky-500 text-slate-950 border-sky-400 shadow' : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500'
+            class="px-3 py-2.5 rounded-xl text-xs font-bold border text-left transition flex items-center justify-between ${
+              active ? 'bg-sky-500 text-slate-950 border-sky-400 shadow' : 'bg-slate-900 text-slate-300 border-slate-700'
             }">
             <span>${sys.label}</span>
             <span>${active ? '✓' : ''}</span>
@@ -439,7 +546,6 @@
         `;
       }).join('');
 
-      // Check if any selected scope uses a boom/mast/excavator
       const needsBoomWarning = SCOPES.some(s => selectedScopes.has(s.id) && s.boom);
       document.getElementById('boomWarningBanner').classList.toggle('hidden', !needsBoomWarning);
     }
@@ -509,21 +615,21 @@
         const isYes = activeHazards[h.id];
         const isSafe = swaPassed[h.id] !== false;
         return `
-          <div class="p-3 rounded-lg border transition ${
+          <div class="p-3.5 rounded-xl border transition ${
             isYes ? 'bg-slate-900 border-amber-500/60' : 'bg-slate-900/40 border-slate-700/70'
           }">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div>
                 <span class="text-xs font-bold uppercase text-amber-400">${h.title}</span>
-                <p class="text-sm font-medium text-white">${h.question}</p>
+                <p class="text-sm font-medium text-white mt-0.5">${h.question}</p>
               </div>
-              <div class="flex gap-2 shrink-0">
+              <div class="grid grid-cols-2 sm:flex gap-2 shrink-0">
                 <button type="button" onclick="setHazardAnswer('${h.id}', true)"
-                  class="px-4 py-1.5 rounded font-bold text-xs ${
+                  class="px-5 py-2.5 rounded-lg font-bold text-xs ${
                     isYes ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-400 border border-slate-700'
                   }">YES</button>
                 <button type="button" onclick="setHazardAnswer('${h.id}', false)"
-                  class="px-4 py-1.5 rounded font-bold text-xs ${
+                  class="px-5 py-2.5 rounded-lg font-bold text-xs ${
                     !isYes ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 border border-slate-700'
                   }">NO</button>
               </div>
@@ -534,15 +640,15 @@
                 isSafe ? 'text-emerald-300' : 'text-red-300'
               }">
                 <p class="text-xs font-semibold">🛡️ ${h.swaCheck.question}</p>
-                <div class="flex gap-2 shrink-0">
+                <div class="grid grid-cols-2 sm:flex gap-2 shrink-0">
                   <button type="button" onclick="setSwaCheck('${h.id}', true)"
-                    class="px-3 py-1 rounded text-xs font-bold ${
+                    class="px-3 py-2 rounded-lg text-xs font-bold ${
                       isSafe ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 border border-slate-700'
                     }">VERIFIED SAFE</button>
                   <button type="button" onclick="setSwaCheck('${h.id}', false)"
-                    class="px-3 py-1 rounded text-xs font-bold ${
+                    class="px-3 py-2 rounded-lg text-xs font-bold ${
                       !isSafe ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-800 text-slate-400 border border-slate-700'
-                    }">NOT READY (STOP WORK)</button>
+                    }">STOP WORK</button>
                 </div>
               </div>
             ` : ''}
@@ -556,10 +662,10 @@
       ctrlEl.innerHTML = ALL_CONTROLS.map(c => {
         const checked = activeControls.has(c);
         return `
-          <label class="flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer ${
+          <label class="flex items-center gap-2.5 p-2.5 rounded-xl border text-xs cursor-pointer ${
             checked ? 'bg-emerald-950/60 border-emerald-500/60 text-emerald-200 font-semibold' : 'bg-slate-900 border-slate-700 text-slate-400'
           }">
-            <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleControl('${c}')" class="accent-emerald-500 w-4 h-4" />
+            <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleControl('${c}')" class="accent-emerald-500 w-5 h-5 shrink-0" />
             <span>${c}</span>
           </label>
         `;
@@ -569,10 +675,10 @@
       ppeEl.innerHTML = ALL_PPE.map(p => {
         const checked = activePPE.has(p);
         return `
-          <label class="flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer ${
+          <label class="flex items-center gap-2.5 p-2.5 rounded-xl border text-xs cursor-pointer ${
             checked ? 'bg-sky-950/60 border-sky-500/60 text-sky-200 font-semibold' : 'bg-slate-900 border-slate-700 text-slate-400'
           }">
-            <input type="checkbox" ${checked ? 'checked' : ''} onchange="togglePPE('${p}')" class="accent-sky-500 w-4 h-4" />
+            <input type="checkbox" ${checked ? 'checked' : ''} onchange="togglePPE('${p}')" class="accent-sky-500 w-5 h-5 shrink-0" />
             <span>${p}</span>
           </label>
         `;
@@ -594,7 +700,6 @@
     }
 
     function updateSummary() {
-      // Check SWA triggers
       const swaReasons = [];
       if (manualSWA) {
         swaReasons.push('Manual Stop Work Authority activated by crew member.');
@@ -613,12 +718,12 @@
       if (swaReasons.length > 0) {
         swaBanner.classList.remove('hidden');
         swaReasonText.innerHTML = swaReasons.map(r => `• ${r}`).join('<br>');
-        badge.textContent = '🛑 STOP WORK AUTHORITY ACTIVE';
+        badge.textContent = '🛑 STOP WORK ACTIVE';
         badge.className = 'text-xs font-bold px-2.5 py-1 rounded bg-red-600 text-white animate-pulse';
         resultSelect.value = 'STOP WORK';
       } else {
         swaBanner.classList.add('hidden');
-        badge.textContent = 'PASS - READY FOR WORK';
+        badge.textContent = 'PASS - READY';
         badge.className = 'text-xs font-bold px-2.5 py-1 rounded bg-emerald-600 text-white';
         if (resultSelect.value === 'STOP WORK') resultSelect.value = 'PASS';
       }
@@ -651,11 +756,22 @@
 
     function copyJobNote() {
       const noteEl = document.getElementById('jobNoteOutput');
-      noteEl.select();
       navigator.clipboard.writeText(noteEl.value);
       const btn = document.getElementById('copyBtn');
-      btn.textContent = '✅ Copied to Clipboard!';
-      setTimeout(() => { btn.textContent = '📋 Copy Job Note to Clipboard'; }, 2000);
+      btn.textContent = '✅ Copied!';
+      setTimeout(() => { btn.textContent = '📋 Copy Job Note'; }, 2000);
+    }
+
+    async function shareJobNote() {
+      const note = document.getElementById('jobNoteOutput').value;
+      const wo = document.getElementById('workOrder').value || 'Field JHA';
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: `JHA - ${wo}`, text: note });
+        } catch (err) {}
+      } else {
+        copyJobNote();
+      }
     }
 
     function resetForm() {
@@ -669,6 +785,7 @@
       document.getElementById('auditorName').value = '';
       renderScopesAndSystems();
       recalculateDefaults();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     initApp();
