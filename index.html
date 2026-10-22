@@ -2,1671 +2,676 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Tradeworks | Guided Field JHA & Safety Audit</title>
-  <!-- Tailwind CSS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Field JHA & Stop Work Authority App</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <!-- Google Fonts: Inter & JetBrains Mono -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            safety: {
-              amber: '#F59E0B',
-              yellow: '#FACC15',
-              green: '#16A34A',
-              red: '#DC2626',
-              slate: '#0F172A'
-            }
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #94a3b8;
-      border-radius: 9999px;
-    }
-
-    /* Smooth pulse for auto-flagged badges */
-    @keyframes subtlePulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.03); }
-    }
-    .auto-badge {
-      animation: subtlePulse 2.2s infinite ease-in-out;
-    }
-
-    /* Print Stylesheet: Formats cleanly into the exact 1-page printable JHA & Safety Audit Sheet */
     @media print {
-      body {
-        background: #ffffff !important;
-        color: #000000 !important;
-        font-size: 11pt;
-      }
-      .no-print {
-        display: none !important;
-      }
-      .print-only {
-        display: block !important;
-      }
-      @page {
-        size: letter portrait;
-        margin: 0.4in;
-      }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      body { background: #fff !important; color: #000 !important; font-size: 11px; }
     }
+    .print-only { display: none; }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col justify-between">
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-16">
 
-  <!-- ================= TOP INDUSTRIAL NAVBAR (NO-PRINT) ================= -->
-  <header class="no-print sticky top-0 z-30 bg-slate-900 text-white shadow-lg border-b-4 border-amber-500">
-    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xl shadow-inner">
-          <i class="fa-solid fa-helmet-safety"></i>
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="font-extrabold tracking-tight text-base sm:text-lg leading-none">TRADEWORKS</span>
-            <span class="bg-amber-500/20 text-amber-300 border border-amber-400/40 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded">JHA Wizard</span>
-          </div>
-          <p class="text-xs text-slate-400 mt-0.5">Guided Field Safety & Pre-Work Check</p>
-        </div>
+  <!-- TOP HEADER -->
+  <header class="bg-slate-950 border-b border-slate-800 sticky top-0 z-30 no-print">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-widest text-amber-400">Tradeworks / Pumpline / Amped</span>
+        <h1 class="text-lg font-extrabold text-white">Guided Field JHA & Safety Audit</h1>
       </div>
-
-      <div class="flex items-center gap-2">
-        <button onclick="openGithubModal()" class="px-2.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition" title="How to host on GitHub">
-          <i class="fa-brands fa-github text-sm text-amber-400"></i>
-          <span class="hidden sm:inline">GitHub Setup</span>
-        </button>
-        <button onclick="confirmResetModal()" class="px-2.5 py-2 rounded-lg bg-slate-800 hover:bg-red-950/60 text-slate-300 hover:text-red-300 text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition" title="Reset form for new job">
-          <i class="fa-solid fa-rotate-right"></i>
-          <span class="hidden sm:inline">New Job</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Step Progress Bar -->
-    <div class="bg-slate-950/90 border-t border-slate-800">
-      <div class="max-w-3xl mx-auto px-3 py-2">
-        <div class="grid grid-cols-5 gap-1.5" id="stepTabsContainer">
-          <!-- Rendered by JS -->
-        </div>
-      </div>
+      <button onclick="triggerManualSWA()" id="swaHeaderBtn" class="bg-red-600 hover:bg-red-500 text-white font-bold text-xs px-3 py-2 rounded-lg shadow flex items-center gap-1.5 uppercase tracking-wider">
+        <span>🛑 Stop Work (SWA)</span>
+      </button>
     </div>
   </header>
 
-  <!-- ================= MAIN INTERACTIVE WIZARD (NO-PRINT) ================= -->
-  <main class="no-print flex-grow max-w-3xl w-full mx-auto px-3 sm:px-4 pt-4 pb-28">
+  <main class="max-w-3xl mx-auto px-4 pt-5 space-y-6 no-print">
 
-    <!-- Quick Mode / Assist Banner -->
-    <div id="smartBanner" class="mb-4 rounded-xl bg-amber-50 border-l-4 border-amber-500 p-3.5 shadow-sm flex items-start gap-3">
-      <i class="fa-solid fa-wand-magic-sparkles text-amber-600 text-lg mt-0.5"></i>
-      <div class="text-xs sm:text-sm text-slate-700 leading-relaxed">
-        <span class="font-bold text-slate-900">Zero-Guesswork Mode Active:</span> Pick your job scope and answer the quick site prompts—the app automatically checks off expected hazards, required controls, PPE, and writes your work order note.
-      </div>
-    </div>
-
-    <!-- ================= STEP 1: JOB INFO ================= -->
-    <section id="step-1" class="step-section space-y-4">
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-          <div>
-            <span class="text-xs font-extrabold uppercase tracking-wider text-amber-600">Step 1 of 5</span>
-            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900">Job & Crew Details</h1>
-          </div>
-          <span class="w-10 h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
-            <i class="fa-solid fa-clipboard-user"></i>
-          </span>
-        </div>
-
-        <div class="space-y-4">
-          <!-- Date & Time -->
-          <div>
-            <label for="jobDate" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-              Date <span class="text-red-500">*</span>
-            </label>
-            <input type="date" id="jobDate"
-              class="w-full rounded-xl border-2 border-slate-300 px-4 py-3 text-base font-semibold text-slate-900 focus:border-amber-500 focus:outline-none transition" />
-          </div>
-
-          <!-- Jobsite / Work Order # -->
-          <div>
-            <label for="jobWorkOrder" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-              Jobsite Name or Work Order # <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <i class="fa-solid fa-hashtag absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-              <input type="text" id="jobWorkOrder" placeholder="e.g., WO-4829 / Miller Well Site"
-                oninput="syncStateFromInputs()"
-                class="w-full rounded-xl border-2 border-slate-300 pl-10 pr-4 py-3.5 text-base font-semibold text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none transition" />
-            </div>
-          </div>
-
-          <!-- Crew Members -->
-          <div>
-            <label for="jobCrew" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-              Crew Members on Site <span class="text-red-500">*</span>
-            </label>
-            <div class="relative">
-              <i class="fa-solid fa-users-gear absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-              <input type="text" id="jobCrew" placeholder="e.g., Jake R., Marcus T."
-                oninput="syncStateFromInputs()"
-                class="w-full rounded-xl border-2 border-slate-300 pl-10 pr-4 py-3.5 text-base font-semibold text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:outline-none transition" />
-            </div>
-            <!-- Quick Crew Presets -->
-            <div class="mt-2 flex flex-wrap items-center gap-1.5">
-              <span class="text-[11px] font-semibold text-slate-400 mr-1">Quick Add:</span>
-              <button type="button" onclick="appendCrewTag('Solo Tech')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2.5 py-1 rounded-lg border border-slate-200 transition">+ Solo Tech</button>
-              <button type="button" onclick="appendCrewTag('2-Man Rig Crew')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2.5 py-1 rounded-lg border border-slate-200 transition">+ 2-Man Rig Crew</button>
-              <button type="button" onclick="appendCrewTag('Helper Assigned')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2.5 py-1 rounded-lg border border-slate-200 transition">+ Helper Assigned</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= STEP 2: PLANNED WORK SCOPE ================= -->
-    <section id="step-2" class="step-section hidden space-y-4">
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
-          <div>
-            <span class="text-xs font-extrabold uppercase tracking-wider text-amber-600">Step 2 of 5 • Packet Step 2</span>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">What work are you doing today?</h2>
-            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Tap all that apply. We'll pre-select your expected hazards & controls automatically.</p>
-          </div>
-          <span class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold shrink-0">
-            <i class="fa-solid fa-screwdriver-wrench"></i>
-          </span>
-        </div>
-
-        <!-- Scope Cards Grid -->
-        <div id="scopeGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-          <!-- Populated dynamically by JS -->
-        </div>
-
-        <!-- Scope Auto-Trigger Preview Box -->
-        <div id="scopePreviewBox" class="mt-5 rounded-xl bg-slate-900 text-white p-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-              <i class="fa-solid fa-bolt"></i> Auto-Flagged by Selected Scope
-            </span>
-            <span id="scopeCountBadge" class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-semibold">0 selected</span>
-          </div>
-          <p id="scopePreviewText" class="text-xs sm:text-sm text-slate-300">
-            Tap at least one work scope above to automatically configure your hazard scan and safety controls.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= STEP 3: GUIDED CONDITIONAL HAZARD SCAN ================= -->
-    <section id="step-3" class="step-section hidden space-y-4">
-      <!-- Conditional Overhead Boom Warning Banner (Only shows if Pump Pull or Hoist or Overhead selected) -->
-      <div id="boomWarningBanner" class="hidden rounded-2xl bg-red-600 text-white p-4 shadow-md border-2 border-red-400">
-        <div class="flex items-start gap-3">
-          <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-          </div>
-          <div>
-            <h3 class="font-black text-sm sm:text-base uppercase tracking-wide">CRITICAL LOOK-UP CHECK: BOOM / RIG OPERATIONS</h3>
-            <p class="text-xs sm:text-sm text-red-100 mt-0.5 leading-snug">
-              You selected <strong>Pump Pull/Replace</strong> or <strong>Hoist Operations</strong>. Walk a 360° circle and look directly overhead for power lines and tree limbs BEFORE raising the mast or outriggers!
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-4">
-          <div>
-            <span class="text-xs font-extrabold uppercase tracking-wider text-amber-600">Step 3 of 5 • Packet Steps 1–14</span>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">Guided Pre-Work Hazard Scan</h2>
-            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
-              Scope hazards are already switched <strong>YES</strong> for you. Answer the remaining quick site questions below:
-            </p>
-          </div>
-          <div class="flex items-center gap-2">
-            <span id="hazardActiveCounter" class="px-3 py-1 rounded-full bg-amber-100 text-amber-900 font-extrabold text-xs">
-              0 Hazards Active
-            </span>
-          </div>
-        </div>
-
-        <!-- Filter / Quick Toggle Bar -->
-        <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 mb-4 text-xs">
-          <span class="font-semibold text-slate-600 flex items-center gap-1.5">
-            <i class="fa-solid fa-circle-info text-amber-600"></i>
-            Tap any card or choose <strong>YES / NO</strong> to update site conditions.
-          </span>
-          <button type="button" onclick="reapplyScopeDefaults()" class="text-amber-700 hover:text-amber-900 font-bold underline">
-            Re-sync with Scope Defaults
-          </button>
-        </div>
-
-        <!-- Guided Question Cards List -->
-        <div id="hazardListContainer" class="space-y-3">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= STEP 4: CONTROLS & PPE SELECTED ================= -->
-    <section id="step-4" class="step-section hidden space-y-4">
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-          <div>
-            <span class="text-xs font-extrabold uppercase tracking-wider text-amber-600">Step 4 of 5 • Packet Steps 15–16</span>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">Verify Required Controls & PPE</h2>
-            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
-              Based on your hazards, these controls and PPE are automatically selected. Confirm they are in place before starting work.
-            </p>
-          </div>
-          <span class="w-10 h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold shrink-0">
-            <i class="fa-solid fa-shield-halved"></i>
-          </span>
-        </div>
-
-        <!-- Alert if a recommended control was manually unchecked -->
-        <div id="unverifiedControlAlert" class="hidden mb-4 rounded-xl bg-amber-50 border-2 border-amber-400 p-3.5 text-xs sm:text-sm text-amber-950 flex items-center justify-between gap-3">
-          <div class="flex items-center gap-2.5">
-            <i class="fa-solid fa-triangle-exclamation text-amber-600 text-lg"></i>
-            <span><strong>Heads Up:</strong> One or more recommended controls for your active hazards is currently unchecked.</span>
-          </div>
-          <button onclick="reapplyRecommendedControls()" class="shrink-0 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-3 py-1.5 rounded-lg text-xs transition">
-            Check All Recommended
-          </button>
-        </div>
-
-        <!-- Part A: Engineering & Site Controls (Step 15) -->
-        <div class="mb-6">
-          <div class="flex items-center justify-between mb-2.5">
-            <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-              <i class="fa-solid fa-lock text-amber-600"></i>
-              1. Site Controls Selected (Step 15)
-            </h3>
-            <span class="text-xs text-slate-500 font-medium">Tap to verify</span>
-          </div>
-          <div id="controlsGrid" class="grid grid-cols-1 gap-2.5">
-            <!-- Populated by JS -->
-          </div>
-        </div>
-
-        <!-- Part B: PPE Required Today (Step 16) -->
+    <!-- STOP WORK AUTHORITY (SWA) ACTIVE BANNER -->
+    <section id="swaBanner" class="hidden bg-red-950 border-2 border-red-500 rounded-xl p-4 shadow-xl">
+      <div class="flex items-start justify-between gap-3">
         <div>
-          <div class="flex items-center justify-between mb-2.5">
-            <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-              <i class="fa-solid fa-hard-hat text-amber-600"></i>
-              2. PPE Required Today (Step 16)
-            </h3>
-            <span class="text-xs text-slate-500 font-medium">Baseline PPE auto-checked</span>
-          </div>
-          <div id="ppeGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <!-- Populated by JS -->
-          </div>
+          <span class="inline-block bg-red-600 text-white text-xs font-black px-2 py-0.5 rounded uppercase">Stop Work Authority Triggered</span>
+          <h2 class="text-lg font-extrabold text-white mt-1">DO NOT PROCEED WITH WORK</h2>
+          <p id="swaReasonText" class="text-sm text-red-200 mt-1"></p>
+        </div>
+      </div>
+      <div class="mt-3 bg-red-900/60 rounded-lg p-3 text-xs text-red-100 space-y-1">
+        <p class="font-bold uppercase text-amber-300">Required 5-Step SWA Protocol (No Retaliation Policy):</p>
+        <ol class="list-decimal list-inside space-y-0.5">
+          <li><strong>Stop Work Immediately:</strong> Cease all activities in the area and notify crew.</li>
+          <li><strong>Notify Supervisor or Lead:</strong> Report the unmitigated hazard immediately.</li>
+          <li><strong>Assess & Correct:</strong> Work with supervisor to bring in required PPE, shoring, LOTO, or gas monitor.</li>
+          <li><strong>Verify Safety Measures:</strong> Confirm hazard is 100% mitigated before touching equipment.</li>
+          <li><strong>Resume Work Only When Safe:</strong> Re-check the verification box below once corrected.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- STEP 1: JOB INFO -->
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400">Step 1: Jobsite & Crew Info</h2>
+        <span class="text-xs text-slate-400">Auto-fills Job Note & Print Sheet</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Date</label>
+          <input type="date" id="jobDate" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Work Order / Jobsite #</label>
+          <input type="text" id="workOrder" placeholder="e.g., WO-4829 / Smith Well" oninput="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Crew Members</label>
+          <input type="text" id="crewNames" placeholder="e.g., J. Miller, T. Davis" oninput="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white" />
         </div>
       </div>
     </section>
 
-    <!-- ================= STEP 5: TAILBOARD SUMMARY, COPY NOTE & SIGN-OFF ================= -->
-    <section id="step-5" class="step-section hidden space-y-4">
-      <!-- Auto-Generated Job Note Card -->
-      <div class="bg-slate-900 text-white rounded-2xl shadow-md border-2 border-amber-500 p-4 sm:p-6">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div>
-            <span class="text-xs font-extrabold uppercase tracking-wider text-amber-400">Packet Steps 17 & 20 • Ready to Paste</span>
-            <h2 class="text-xl font-extrabold text-white">Crew Tailboard & Work Order Note</h2>
-          </div>
-          <span class="bg-green-500/20 text-green-300 border border-green-400/40 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5">
-            <i class="fa-solid fa-check-double"></i> Auto-Generated
-          </span>
-        </div>
-
-        <p class="text-xs text-slate-300 mb-3">
-          Read this aloud with your crew at the tailboard, then tap <strong>Copy Job Note</strong> to paste directly into your mobile work order / dispatch app:
-        </p>
-
-        <!-- The exact packet note string -->
-        <div class="bg-slate-950 rounded-xl p-3.5 border border-slate-700 font-mono text-xs sm:text-sm text-amber-100 leading-relaxed select-all" id="generatedJobNoteBox">
-          <!-- Populated by JS -->
-        </div>
-
-        <!-- Copy Button + Feedback -->
-        <div class="mt-4 flex flex-col sm:flex-row gap-2.5">
-          <button type="button" onclick="copyJobNoteToClipboard()" id="copyNoteBtn"
-            class="flex-1 bg-amber-500 hover:bg-amber-400 active:scale-[0.99] text-slate-950 font-black py-3.5 px-5 rounded-xl shadow-md flex items-center justify-center gap-2 text-base transition">
-            <i class="fa-solid fa-copy"></i>
-            <span>Copy Job Note to Clipboard</span>
-          </button>
-          <button type="button" onclick="window.print()"
-            class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 px-5 rounded-xl border border-slate-600 flex items-center justify-center gap-2 text-sm transition">
-            <i class="fa-solid fa-print text-amber-400"></i>
-            <span>Print / Save 1-Page PDF</span>
-          </button>
-        </div>
+    <!-- STEP 2: PLANNED WORK SCOPE & SYSTEM TYPE -->
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-4">
+      <div>
+        <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400">Step 2: Select Work Scope & System Type</h2>
+        <p class="text-xs text-slate-400 mt-0.5">Tap all that apply today. The app will automatically ask the right safety questions below.</p>
       </div>
 
-      <!-- Sign-Off & Thursday Field Audit Card -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 space-y-5">
+      <div>
+        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Primary Work Scope (Select all that apply):</label>
+        <div id="scopeContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Water / Pumping System Environment:</label>
+        <div id="systemContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
+      </div>
+
+      <!-- Critical Look-Up Warning if Hoist/Drilling/Excavation is chosen -->
+      <div id="boomWarningBanner" class="hidden bg-amber-500/20 border-2 border-amber-400 rounded-lg p-3 text-amber-200 text-xs font-semibold flex items-center gap-2">
+        <span class="text-xl">⚡</span>
         <div>
-          <h3 class="text-lg font-extrabold text-slate-900">Lead Tech Sign-Off</h3>
-          <p class="text-xs text-slate-500">Confirm tailboard briefing was completed prior to starting work.</p>
+          <strong class="text-amber-300 uppercase block">CRITICAL LOOK-UP WARNING (RIG / BOOM / EXCAVATOR ACTIVE):</strong>
+          Scan overhead 360° for power lines & tree limbs BEFORE raising mast, boom, or derrick. Maintain minimum 10–20 ft clearance and set outriggers on solid cribbing.
         </div>
+      </div>
+    </section>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label for="leadTechSign" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-              Lead Tech Name / Initials <span class="text-red-500">*</span>
-            </label>
-            <input type="text" id="leadTechSign" placeholder="Type full name or initials..."
-              oninput="syncStateFromInputs()"
-              class="w-full rounded-xl border-2 border-slate-300 px-4 py-3 text-base font-bold text-slate-900 focus:border-amber-500 focus:outline-none" />
-          </div>
-
-          <div class="flex items-end">
-            <label class="w-full flex items-center gap-3 p-3.5 rounded-xl border-2 border-green-600 bg-green-50 cursor-pointer select-none">
-              <input type="checkbox" id="tailboardConfirmed" checked onchange="syncStateFromInputs()"
-                class="w-5 h-5 accent-green-600 rounded cursor-pointer" />
-              <span class="text-xs sm:text-sm font-bold text-green-950 leading-tight">
-                Crew briefed on all active hazards, LOTO & exclusion zones.
-              </span>
-            </label>
-          </div>
+    <!-- STEP 3: CONDITIONAL SITE HAZARD QUESTIONS -->
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+        <div>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400">Step 3: Guided Hazard Scan & SWA Checks</h2>
+          <p class="text-xs text-slate-400">Pre-checked based on your scope. Tap YES or NO for each site condition.</p>
         </div>
+      </div>
+      <div id="questionsContainer" class="space-y-3"></div>
+    </section>
 
-        <!-- Optional Thursday Auditor Section Toggle -->
-        <div class="pt-3 border-t border-slate-200">
-          <button type="button" onclick="toggleAuditorPanel()"
-            class="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-800 font-bold text-sm transition">
-            <span class="flex items-center gap-2">
-              <i class="fa-solid fa-clipboard-check text-amber-600"></i>
-              <span>Thursday Field Safety Audit (If Observed by Auditor)</span>
-            </span>
-            <i id="auditorChevron" class="fa-solid fa-chevron-down text-slate-500 transition-transform"></i>
+    <!-- STEP 4: AUTO-SELECTED CONTROLS & PPE -->
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-4">
+      <div>
+        <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400">Step 4: Required Controls & PPE (Auto-Selected)</h2>
+        <p class="text-xs text-slate-400">Based on your answers above, confirm these controls and PPE are active on site.</p>
+      </div>
+
+      <div>
+        <h3 class="text-xs font-bold uppercase text-slate-300 mb-2">Site Controls Active:</h3>
+        <div id="controlsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+      </div>
+
+      <div>
+        <h3 class="text-xs font-bold uppercase text-slate-300 mb-2">Required PPE Today:</h3>
+        <div id="ppeContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+      </div>
+    </section>
+
+    <!-- STEP 5: TAILBOARD SUMMARY, COPY NOTE & AUDITOR SIGN-OFF -->
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400">Step 5: Crew Tailboard & Job Note Output</h2>
+        <span id="auditStatusBadge" class="text-xs font-bold px-2.5 py-1 rounded bg-emerald-600 text-white">PASS - READY FOR WORK</span>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Auto-Generated Work Order Note (Tap Copy & Paste into Service App):</label>
+        <textarea id="jobNoteOutput" rows="4" readonly class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs font-mono text-emerald-300"></textarea>
+        <div class="flex flex-wrap gap-2 mt-2">
+          <button onclick="copyJobNote()" id="copyBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow">
+            📋 Copy Job Note to Clipboard
           </button>
-
-          <div id="auditorPanel" class="hidden mt-3 p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
-            <div>
-              <label for="auditorName" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                Auditor Name (If Observed)
-              </label>
-              <input type="text" id="auditorName" placeholder="e.g., Tom / Safety Supervisor"
-                oninput="syncStateFromInputs()"
-                class="w-full rounded-xl border-2 border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 focus:border-amber-500 focus:outline-none" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
-                Audit Result
-              </label>
-              <div class="grid grid-cols-3 gap-2.5" id="auditResultButtons">
-                <button type="button" onclick="setAuditResult('PASS')" data-result="PASS"
-                  class="audit-btn py-3 px-3 rounded-xl border-2 border-slate-300 bg-white font-extrabold text-xs sm:text-sm text-slate-700 flex flex-col items-center gap-1 transition">
-                  <i class="fa-solid fa-circle-check text-lg text-green-600"></i>
-                  <span>PASS</span>
-                </button>
-                <button type="button" onclick="setAuditResult('COACHED')" data-result="COACHED"
-                  class="audit-btn py-3 px-3 rounded-xl border-2 border-slate-300 bg-white font-extrabold text-xs sm:text-sm text-slate-700 flex flex-col items-center gap-1 transition">
-                  <i class="fa-solid fa-user-graduate text-lg text-amber-500"></i>
-                  <span>COACHED</span>
-                </button>
-                <button type="button" onclick="setAuditResult('STOP WORK')" data-result="STOP WORK"
-                  class="audit-btn py-3 px-3 rounded-xl border-2 border-slate-300 bg-white font-extrabold text-xs sm:text-sm text-slate-700 flex flex-col items-center gap-1 transition">
-                  <i class="fa-solid fa-hand text-lg text-red-600"></i>
-                  <span>STOP WORK</span>
-                </button>
-              </div>
-            </div>
-          </div>
+          <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow">
+            🖨️ Print 1-Page Audit Sheet
+          </button>
+          <button onclick="resetForm()" class="bg-slate-900 hover:bg-slate-700 text-slate-300 font-semibold text-xs px-3 py-2.5 rounded-lg border border-slate-700 ml-auto">
+            Reset Form
+          </button>
         </div>
       </div>
 
-      <!-- Live Preview of 1-Page Printable Sheet -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-700">
-              1-Page Printable Packet Preview
-            </h3>
-            <p class="text-xs text-slate-500">Matches "PART 3: PRINTABLE 1-PAGE FIELD JHA & SAFETY AUDIT SHEET"</p>
-          </div>
-          <button onclick="window.print()" class="text-xs font-bold bg-slate-900 text-white px-3 py-2 rounded-lg hover:bg-slate-800 flex items-center gap-1.5">
-            <i class="fa-solid fa-print text-amber-400"></i> Print Sheet
-          </button>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-700">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Lead Tech Sign-Off</label>
+          <input type="text" id="leadSign" placeholder="Type Full Name" oninput="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white" />
         </div>
-
-        <!-- Embedded mini preview of the exact sheet -->
-        <div id="onScreenSheetPreview" class="border-2 border-slate-300 rounded-xl p-4 bg-slate-50 text-xs space-y-2.5 font-sans">
-          <!-- Populated by JS -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Auditor Name (If Observed)</label>
+          <input type="text" id="auditorName" placeholder="Optional (Thursday Audit)" oninput="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Audit Result</label>
+          <select id="auditResult" onchange="updateSummary()" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white">
+            <option value="PASS">PASS</option>
+            <option value="COACHED">COACHED</option>
+            <option value="STOP WORK">STOP WORK</option>
+          </select>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- ================= STICKY BOTTOM NAVIGATION BAR (NO-PRINT) ================= -->
-  <footer class="no-print fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur border-t border-slate-200 shadow-2xl">
-    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
-      <button type="button" id="prevStepBtn" onclick="navigateStep(-1)"
-        class="px-4 py-3.5 rounded-xl border-2 border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-extrabold text-sm flex items-center gap-2 transition disabled:opacity-40 disabled:pointer-events-none">
-        <i class="fa-solid fa-arrow-left"></i>
-        <span>Back</span>
-      </button>
-
-      <div class="text-center hidden sm:block">
-        <span id="bottomStatusText" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Step 1 of 5</span>
+  <!-- 1-PAGE PRINTABLE SHEET (FOR TRUCKS OR THURSDAY AUDITOR CLIPBOARD) -->
+  <section class="print-only p-4 max-w-4xl mx-auto text-black">
+    <div class="border-b-2 border-black pb-2 mb-3 flex justify-between items-end">
+      <div>
+        <h1 class="text-lg font-bold uppercase">1-Page Field JHA & Safety Audit Sheet</h1>
+        <p class="text-xs">Tradeworks / Pumpline / Amped Pump & Controls — Pre-Work Hazard Scan & SWA Verification</p>
       </div>
-
-      <button type="button" id="nextStepBtn" onclick="navigateStep(1)"
-        class="flex-1 sm:flex-initial sm:min-w-[220px] px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-[0.99] text-slate-950 font-black text-base shadow-md flex items-center justify-center gap-2 transition">
-        <span id="nextStepBtnLabel">Select Work Scope</span>
-        <i class="fa-solid fa-arrow-right" id="nextStepBtnIcon"></i>
-      </button>
-    </div>
-  </footer>
-
-  <!-- ================= EXACT 1-PAGE PRINTABLE SHEET (PRINT-ONLY) ================= -->
-  <div id="printableAuditSheet" class="print-only hidden">
-    <!-- Populated dynamically by renderPrintableSheet() -->
-  </div>
-
-  <!-- ================= TOAST NOTIFICATION ================= -->
-  <div id="toastBanner" class="no-print fixed top-20 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl border-2 border-amber-400 flex items-center gap-2.5 text-sm font-bold">
-    <i class="fa-solid fa-circle-check text-green-400 text-lg"></i>
-    <span id="toastMessage">Copied to clipboard!</span>
-  </div>
-
-  <!-- ================= GITHUB PAGES DEPLOYMENT MODAL ================= -->
-  <div id="githubModal" class="no-print fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
-        <div class="flex items-center gap-2.5">
-          <i class="fa-brands fa-github text-2xl text-slate-900"></i>
-          <div>
-            <h3 class="font-extrabold text-lg text-slate-900">Publish on GitHub Pages in 60 Seconds</h3>
-            <p class="text-xs text-slate-500">Free mobile web app link for your field crews</p>
-          </div>
-        </div>
-        <button onclick="closeGithubModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <ol class="space-y-3 text-xs sm:text-sm text-slate-700 list-decimal list-inside">
-        <li class="p-3 rounded-xl bg-slate-50 border border-slate-200">
-          <strong class="text-slate-900">Create a Repository:</strong> Log into <span class="font-mono text-xs bg-slate-200 px-1.5 py-0.5 rounded">github.com</span>, click <strong>New repository</strong>, and name it <span class="font-mono text-xs bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold">tradeworks-jha</span>.
-        </li>
-        <li class="p-3 rounded-xl bg-slate-50 border border-slate-200">
-          <strong class="text-slate-900">Upload this File:</strong> Save this file as <span class="font-mono text-xs bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded font-bold">index.html</span> and upload it directly to your repository root.
-        </li>
-        <li class="p-3 rounded-xl bg-slate-50 border border-slate-200">
-          <strong class="text-slate-900">Enable GitHub Pages:</strong> Go to <strong>Settings → Pages</strong>, under <em>Branch</em> select <strong>main</strong> and click <strong>Save</strong>.
-        </li>
-        <li class="p-3 rounded-xl bg-green-50 border border-green-200 text-green-950">
-          <strong>Done! Send Link to Trucks:</strong> In ~45 seconds, your crews can open <span class="font-mono text-xs">https://your-username.github.io/tradeworks-jha/</span> on their phones and tap <em>"Add to Home Screen"</em>.
-        </li>
-      </ol>
-
-      <div class="mt-5 flex justify-end">
-        <button onclick="closeGithubModal()" class="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-sm hover:bg-slate-800">
-          Got It
-        </button>
+      <div class="text-right text-xs">
+        <div><strong>Date:</strong> <span id="printDate"></span></div>
+        <div><strong>WO / Jobsite:</strong> <span id="printWO"></span></div>
       </div>
     </div>
-  </div>
 
-  <!-- ================= RESET CONFIRMATION MODAL ================= -->
-  <div id="resetModal" class="no-print fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-lg shrink-0">
-          <i class="fa-solid fa-rotate-right"></i>
-        </div>
-        <div>
-          <h3 class="font-extrabold text-base text-slate-900">Start a New Job JHA?</h3>
-          <p class="text-xs text-slate-500">Clears current job selections and resets for the next site.</p>
-        </div>
+    <div class="mb-2 text-xs">
+      <strong>Crew Members:</strong> <span id="printCrew"></span> |
+      <strong>Scopes:</strong> <span id="printScopes"></span> |
+      <strong>System:</strong> <span id="printSystems"></span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mb-3 text-xs">
+      <div class="border border-black p-2">
+        <h2 class="font-bold uppercase border-b border-black mb-1">Identified Hazards</h2>
+        <ul id="printHazards" class="list-disc list-inside space-y-0.5"></ul>
       </div>
-      <div class="flex items-center justify-end gap-2 mt-4">
-        <button onclick="closeResetModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs">
-          Cancel
-        </button>
-        <button onclick="resetForNewJob()" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs">
-          Yes, Reset JHA
-        </button>
+      <div class="border border-black p-2">
+        <h2 class="font-bold uppercase border-b border-black mb-1">Controls & PPE Verified</h2>
+        <div class="mb-1"><strong>Controls:</strong> <span id="printControls"></span></div>
+        <div><strong>PPE:</strong> <span id="printPPE"></span></div>
       </div>
     </div>
-  </div>
 
-  <!-- ================= APPLICATION LOGIC & CONDITIONAL ENGINE ================= -->
+    <div class="border border-black p-2 mb-3 text-xs">
+      <h2 class="font-bold uppercase border-b border-black mb-1">Crew Tailboard & Job Note Summary</h2>
+      <p id="printJobNote" class="font-mono"></p>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 border-t-2 border-black pt-3 text-xs">
+      <div><strong>Lead Tech Sign-Off:</strong> <span id="printLead"></span></div>
+      <div><strong>Auditor (If Observed):</strong> <span id="printAuditor"></span></div>
+      <div><strong>Result:</strong> <span id="printResult" class="font-bold"></span></div>
+    </div>
+  </section>
+
   <script>
-    // ---------------------------------------------------------------------------
-    // 1. MASTER DATA DEFINITIONS (Exact items from Tradeworks JHA Packet)
-    // ---------------------------------------------------------------------------
-
-    const WORK_SCOPES = [
-      {
-        id: 'diagnostics',
-        label: 'Diagnostics',
-        icon: 'fa-gauge-high',
-        desc: 'Troubleshooting voltage, pressure switch, control box, amp draw',
-        autoHazards: ['electrical_loto']
-      },
-      {
-        id: 'pump_pull',
-        label: 'Pump Pull/Replace',
-        labelShort: 'Pump Pull/Replace',
-        icon: 'fa-truck-ramp-box',
-        desc: 'Setting rig/hoist, pulling drop pipe, submersible pump replacement',
-        autoHazards: ['overhead_lines', 'electrical_loto', 'hoist_loads', 'winch_pinch']
-      },
-      {
-        id: 'pressure_tank',
-        label: 'Pressure Tank',
-        icon: 'fa-temperature-arrow-up',
-        desc: 'Depressurizing system, tank swap, manifold & relief valve work',
-        autoHazards: ['electrical_loto', 'winch_pinch']
-      },
-      {
-        id: 'electrical_control',
-        label: 'Electrical/Control',
-        icon: 'fa-bolt',
-        desc: 'VFD, starter box, breaker panel, pressure switch, wiring splice',
-        autoHazards: ['electrical_loto']
-      },
-      {
-        id: 'trenching_pitless',
-        label: 'Trenching/Pitless',
-        icon: 'fa-person-digging',
-        desc: 'Excavating service line, pitless adapter install, backfill',
-        autoHazards: ['trench_excavation', 'soft_ground']
-      },
-      {
-        id: 'confined_space',
-        label: 'Confined Space',
-        icon: 'fa-dungeon',
-        desc: 'Entering well pit, vault, cistern, or subsurface enclosure',
-        autoHazards: ['confined_space', 'chemicals_bio']
-      }
+    // 1. WORK SCOPES (Combines Packet 1 + Manual 2.1)
+    const SCOPES = [
+      { id: 'diagnostics', label: 'Diagnostics / Testing', boom: false },
+      { id: 'pump_pull', label: 'Pump Pull / Replace', boom: true },
+      { id: 'pressure_tank', label: 'Pressure Tank / Piping', boom: false },
+      { id: 'electrical', label: 'Electrical / Controls', boom: false },
+      { id: 'trenching', label: 'Trenching / Dirt Work', boom: true },
+      { id: 'confined_space', label: 'Confined Space / Vault', boom: false },
+      { id: 'wastewater', label: 'Wastewater / Sewage Pump', boom: true },
+      { id: 'drilling', label: 'Water Well Drilling', boom: true }
     ];
 
-    // All 11 Pre-Work Hazard Scan items from Packet (Steps 1-14)
+    // 2. SYSTEM ENVIRONMENTS (From Manual 2.1)
+    const SYSTEMS = [
+      { id: 'well', label: 'Well Water System' },
+      { id: 'wastewater_sys', label: 'Wastewater System' },
+      { id: 'lake', label: 'Lake Water Intake' },
+      { id: 'cistern', label: 'Cistern System' }
+    ];
+
+    // 3. CONDITIONAL HAZARD QUESTIONS (With High-Risk Stop Work Authority Gatekeepers)
     const HAZARDS = [
       {
-        id: 'overhead_lines',
-        label: 'Overhead Lines / Trees',
-        question: 'Are there overhead power lines, service drops, or tree limbs near the rig/work zone?',
-        tip: 'Walk 360° and look up before raising boom/mast. Maintain 10ft+ minimum clearance.',
-        icon: 'fa-tower-observation',
-        category: 'Overhead & Rigging'
-      },
-      {
-        id: 'soft_ground',
-        label: 'Soft/Unstable Ground or Slope',
-        question: 'Is the ground muddy, soft, frozen/thawing, or on a slope where the truck/equipment sits?',
-        tip: 'Use outrigger cribbing pads, wheel chocks, and verify soil bearing before lifting.',
-        icon: 'fa-hill-rockslide',
-        category: 'Site & Ground'
-      },
-      {
-        id: 'traffic_exposure',
-        label: 'Traffic Exposure',
-        question: 'Is the work area near a road, shared driveway, or active vehicle traffic?',
-        tip: 'Place cones, turn on beacons, position truck as a blocker, and wear Hi-Vis vest.',
-        icon: 'fa-triangle-exclamation',
-        category: 'Site & Ground'
-      },
-      {
         id: 'electrical_loto',
-        label: 'Energized Electrical / LOTO Needed',
-        question: 'Will you open a control box, touch wiring, or work on equipment connected to power?',
-        tip: 'Lock out & tag out disconnect/breaker and verify zero voltage with meter.',
-        icon: 'fa-plug-circle-bolt',
-        category: 'Electrical & Mechanical'
+        title: 'Energized Electrical / Pump Power (High Risk)',
+        question: 'Will you work on or near electrical panels, pressure switches, splices, or pump wiring?',
+        defaultScopes: ['diagnostics', 'pump_pull', 'electrical', 'wastewater', 'pressure_tank'],
+        controls: ['Power Locked Out (LOTO)', 'GFCI / Moisture-Proof Connections Verified'],
+        ppe: ['Insulated Gloves', 'Safety Boots', 'Safety Glasses'],
+        swaCheck: {
+          question: 'SWA VERIFICATION: Is power disconnected, locked out (LOTO), and verified 0V with a meter?',
+          failReason: 'Electrical Hazard (SWA Condition #1): Power is not properly isolated or LOTO procedures have not been followed.'
+        }
       },
       {
-        id: 'hoist_loads',
-        label: 'Hoist / Suspended Loads',
-        question: 'Will you be hoisting pipe, pumps, or heavy equipment overhead?',
-        tip: 'Inspect cables/clamps, never stand under a suspended load, establish exclusion zone.',
-        icon: 'fa-weight-hanging',
-        category: 'Overhead & Rigging'
-      },
-      {
-        id: 'winch_pinch',
-        label: 'Winch / Pipe Pinch Points',
-        question: 'Are there pipe clamps, elevators, winches, threads, or heavy tank pinch points?',
-        tip: 'Keep hands clear of pipe elevators, wellhead casing rim, and moving winch lines.',
-        icon: 'fa-hand-dots',
-        category: 'Electrical & Mechanical'
-      },
-      {
-        id: 'trench_excavation',
-        label: 'Trench / Excavation',
-        question: 'Is there an open trench, pitless excavation, or digging on site today?',
-        tip: 'Verify 811 locates, keep spoil pile 2ft+ back, inspect trench walls for sloughing.',
-        icon: 'fa-mound',
-        category: 'Excavation & Pit'
+        id: 'overhead_lines',
+        title: 'Overhead Power Lines / Trees / Mast Clearance (High Risk)',
+        question: 'Are you raising a pump hoist, drill rig mast, crane boom, or excavator near overhead lines or trees?',
+        defaultScopes: ['pump_pull', 'drilling', 'trenching'],
+        controls: ['Truck/Outriggers Stabilized', 'Spotter Assigned', '20-Ft Overhead Line Clearance Verified'],
+        ppe: ['Hard Hat (Machinery On / Boom Up)', 'Safety Glasses', 'Boots'],
+        swaCheck: {
+          question: 'SWA VERIFICATION: Have you walked 360° to verify safe clearance from all overhead power lines and assigned a spotter?',
+          failReason: 'Equipment / Electrical Hazard (SWA Condition #1 & #8): Unsafe proximity to overhead lines or missing spotter.'
+        }
       },
       {
         id: 'confined_space',
-        label: 'Confined Space (Well Pit / Vault)',
-        question: 'Is the wellhead inside a well pit, vault, or enclosed subsurface space?',
-        tip: 'Do not enter without gas monitor check, ventilation, harness/retrieval & spotter.',
-        icon: 'fa-arrow-down-up-lock',
-        category: 'Excavation & Pit'
+        title: 'Confined Space — Well Pit, Vault, Cistern, or Wet Well (High Risk)',
+        question: 'Does anyone need to enter a well pit, vault, cistern, or enclosed pump station?',
+        defaultScopes: ['confined_space', 'wastewater', 'cistern'],
+        controls: ['4-Gas Air Monitor Active (O2/H2S/Methane/CO)', 'Forced Ventilation Running', 'Confined Space Permit & Standby Attendant'],
+        ppe: ['Full Body Harness & Retrieval Line', 'Respirator / Gas Monitor', 'Hard Hat (Machinery On / Boom Up)'],
+        swaCheck: {
+          question: 'SWA VERIFICATION: Is a 4-gas monitor running, ventilation established, permit active, and a backup attendant topside?',
+          failReason: 'Confined Space Hazard (SWA Condition #2): Missing confined space permit, ventilation, or atmospheric gas monitoring.'
+        }
       },
       {
-        id: 'weather_hazard',
-        label: 'Weather (Wind/Ice/Heat/Lightning)',
-        question: 'Is there high wind, lightning, ice/snow slip hazard, or extreme heat today?',
-        tip: 'Halt mast operations in lightning/high winds; use ice cleats or hydration breaks.',
-        icon: 'fa-cloud-bolt',
-        category: 'Environmental'
+        id: 'excavation_trench',
+        title: 'Trenching, Excavation & Underground Utilities (High Risk)',
+        question: 'Are you digging a trench, pitless excavation, or moving earth?',
+        defaultScopes: ['trenching'],
+        controls: ['811 Utility Locates Verified & Hand-Dug Near Marks', 'Trench Shored/Sloped (>5 ft) & Daily Inspection Done', 'Exclusion Zone Set'],
+        ppe: ['Hard Hat (Machinery On / Boom Up)', 'Hi-Vis Vest', 'Steel-Toe Boots'],
+        swaCheck: {
+          question: 'SWA VERIFICATION: Are 811 utility locates marked AND are trenches >5ft properly sloped/shored with no wall cracking or seepage?',
+          failReason: 'Unsafe Excavation (SWA Condition #3): Unmarked utilities, signs of trench instability, or missing protective shoring/sloping.'
+        }
       },
       {
-        id: 'chemicals_bio',
-        label: 'Chemicals / Sewage / Bio',
-        question: 'Will you use chlorine/acid or face stagnation, sewage, rodents, or bio-hazards?',
-        tip: 'Use eye protection, chemical gloves, ventilation, and wash/sanitize hands.',
-        icon: 'fa-biohazard',
-        category: 'Environmental'
+        id: 'bio_wastewater',
+        title: 'Wastewater, Raw Sewage, Shock Chlorine & Bio Hazards (High Risk)',
+        question: 'Is there exposure to raw sewage, septic lids, lake/well treatment chemicals (chlorine), or bio-contaminants?',
+        defaultScopes: ['wastewater', 'pump_pull'],
+        defaultSystems: ['wastewater_sys', 'cistern'],
+        controls: ['SDS / Spill Protocol Ready', 'Water Quality / Post-Chlorination Test Planned', 'Decontamination / Handwash Station Ready'],
+        ppe: ['Chemical/Disposable Gloves', 'Face Shield / Eye Protection', 'Rubber Boots', 'Hearing/Resp.'],
+        swaCheck: {
+          question: 'SWA VERIFICATION: Does the crew have required bio/chemical PPE (gloves, face shield/eye protection) and SDS rules on site?',
+          failReason: 'Biological & Chemical Exposure (SWA Condition #4): Required PPE is missing for wastewater or chemical handling.'
+        }
+      },
+      {
+        id: 'hoist_pinch',
+        title: 'Hoist / Suspended Loads & Winch / Pipe Pinch Points (Moderate/High)',
+        question: 'Are you lifting pumps, drop pipe, casing, or heavy tanks with a hoist, winch, or moving rig parts?',
+        defaultScopes: ['pump_pull', 'drilling', 'pressure_tank'],
+        controls: ['Exclusion Zone Set', 'Machine Guards in Place & Safe Distancing', 'Mechanical Lifting Aid Used'],
+        ppe: ['Hard Hat (Machinery On / Boom Up)', 'Gloves', 'Steel-Toe Boots', 'Hi-Vis Vest'],
+        swaCheck: {
+          question: 'SWA VERIFICATION: Are all machine guards in place and all crew members clear of suspended loads?',
+          failReason: 'Equipment Hazard (SWA Condition #5): Machinery lacks guards or safe distancing from suspended/moving loads is not maintained.'
+        }
+      },
+      {
+        id: 'noise_silica_dust',
+        title: 'High Noise & Airborne Silica / Drilling Dust (Moderate/High)',
+        question: 'Is there loud drilling/machinery noise or airborne silica/rock dust from dry drilling or dirt work?',
+        defaultScopes: ['drilling', 'trenching'],
+        controls: ['Water Spray Dust Suppression Active'],
+        ppe: ['Hearing/Resp.', 'Safety Glasses'],
+        swaCheck: {
+          question: 'SWA VERIFICATION: Are water dust suppression and/or respirators and hearing protection actively in use?',
+          failReason: 'Airborne / Noise Hazard (SWA Condition #7): Dust control or respirators/hearing protection not used in drilling or silica environment.'
+        }
+      },
+      {
+        id: 'soft_ground_slope',
+        title: 'Soft/Unstable Ground, Slopes, or Equipment Rollover Risk',
+        question: 'Is the rig, pump truck, or excavator parked on mud, ice, a steep slope, or near a lake bank/cistern edge?',
+        defaultScopes: ['pump_pull', 'drilling', 'trenching'],
+        defaultSystems: ['lake', 'cistern'],
+        controls: ['Truck/Outriggers Stabilized', 'Wheel Chocks & Seatbelt Used on Equipment'],
+        ppe: ['Slip-Resistant Boots']
+      },
+      {
+        id: 'traffic_visibility',
+        title: 'Roadside Traffic Exposure or Low Visibility',
+        question: 'Is the work zone near a road, driveway, or active heavy equipment paths?',
+        defaultScopes: ['trenching', 'drilling'],
+        controls: ['Exclusion Zone Set', 'Spotter Assigned', 'Cones / Barricades Placed'],
+        ppe: ['Hi-Vis Vest']
       },
       {
         id: 'customer_pets_septic',
-        label: 'Customer / Pets / Livestock / Septic Lids',
-        question: 'Are customers watching nearby, pets/livestock loose, or hidden septic lids nearby?',
-        tip: 'Ask homeowner to secure pets, stay off septic lids with trucks, keep customer outside zone.',
-        icon: 'fa-dog',
-        category: 'Environmental'
+        title: 'Customer, Bystanders, Pets, Livestock & 50-ft Contamination Setback',
+        question: 'Are customers, dogs, livestock, weak septic lids, or contamination sources within 50 ft of the well/work zone?',
+        defaultScopes: ['diagnostics', 'pump_pull', 'trenching'],
+        defaultSystems: ['well'],
+        controls: ['Pets/Bystanders Secured', 'Exclusion Zone Set', 'Verified >50 ft Setback from Septic/Livestock'],
+        ppe: ['Boots']
+      },
+      {
+        id: 'weather_slips',
+        title: 'Weather (Wind/Ice/Heat/Lightning) & Hose/Tool Trip Hazards',
+        question: 'Are there slick hoses, mud, spills, freezing temps, high winds, or lightning risks today?',
+        defaultScopes: ['pump_pull', 'drilling', 'wastewater'],
+        controls: ['Walkways Cleared of Hoses/Tools & Spills Cleaned', 'Pressure Relief Valve & Leak Check Verified'],
+        ppe: ['Slip-Resistant Boots', 'Gloves']
       }
     ];
 
-    // Controls Selected (Step 15)
-    const CONTROLS = [
-      {
-        id: 'loto_applied',
-        label: 'Power Locked Out (LOTO)',
-        desc: 'Breaker/disconnect locked out & verified dead with meter',
-        icon: 'fa-lock'
-      },
-      {
-        id: 'truck_stabilized',
-        label: 'Truck/Outriggers Stabilized',
-        desc: 'Wheel chocks set, outrigger pads placed on firm footing',
-        icon: 'fa-truck-field'
-      },
-      {
-        id: 'exclusion_zone',
-        label: 'Exclusion Zone Set',
-        desc: 'Cones/barricades placed around rig, trench, and suspended loads',
-        icon: 'fa-road-barrier'
-      },
-      {
-        id: 'pets_bystanders_secured',
-        label: 'Pets/Bystanders Secured',
-        desc: 'Customer briefed, pets/livestock penned, septic areas flagged',
-        icon: 'fa-user-shield'
-      },
-      {
-        id: 'spotter_assigned',
-        label: 'Spotter Assigned',
-        desc: 'Dedicated spotter watching boom clearance, backing, or pit entry',
-        icon: 'fa-eye'
-      }
+    const ALL_CONTROLS = [
+      'Power Locked Out (LOTO)',
+      'Truck/Outriggers Stabilized',
+      'Exclusion Zone Set',
+      'Pets/Bystanders Secured',
+      'Spotter Assigned',
+      '811 Utility Locates Verified & Hand-Dug Near Marks',
+      'Trench Shored/Sloped (>5 ft) & Daily Inspection Done',
+      '4-Gas Air Monitor Active (O2/H2S/Methane/CO)',
+      'Forced Ventilation Running',
+      'Confined Space Permit & Standby Attendant',
+      'Water Spray Dust Suppression Active',
+      'Verified >50 ft Setback from Septic/Livestock',
+      'Pressure Relief Valve & Leak Check Verified',
+      'Walkways Cleared of Hoses/Tools & Spills Cleaned'
     ];
 
-    // PPE Required Today (Step 16)
-    const PPE_ITEMS = [
-      {
-        id: 'ppe_hardhat',
-        label: 'Hard Hat (Machinery On / Boom Up)',
-        shortLabel: 'Hard Hat',
-        icon: 'fa-helmet-safety',
-        baseline: false
-      },
-      {
-        id: 'ppe_glasses',
-        label: 'Safety Glasses',
-        shortLabel: 'Safety Glasses',
-        icon: 'fa-glasses',
-        baseline: true
-      },
-      {
-        id: 'ppe_gloves',
-        label: 'Gloves',
-        shortLabel: 'Gloves',
-        icon: 'fa-mitten',
-        baseline: true
-      },
-      {
-        id: 'ppe_boots',
-        label: 'Boots',
-        shortLabel: 'Boots',
-        icon: 'fa-shoe-prints',
-        baseline: true
-      },
-      {
-        id: 'ppe_hivis',
-        label: 'Hi-Vis Vest',
-        shortLabel: 'Hi-Vis Vest',
-        icon: 'fa-vest',
-        baseline: false
-      },
-      {
-        id: 'ppe_hearing_resp',
-        label: 'Hearing/Resp.',
-        shortLabel: 'Hearing/Resp.',
-        icon: 'fa-ear-listen',
-        baseline: false
-      }
+    const ALL_PPE = [
+      'Hard Hat (Machinery On / Boom Up)',
+      'Safety Glasses',
+      'Gloves',
+      'Insulated Gloves',
+      'Chemical/Disposable Gloves',
+      'Boots',
+      'Steel-Toe Boots',
+      'Slip-Resistant Boots',
+      'Rubber Boots',
+      'Hi-Vis Vest',
+      'Hearing/Resp.',
+      'Face Shield / Eye Protection',
+      'Full Body Harness & Retrieval Line'
     ];
 
-    const STEP_META = [
-      { step: 1, short: '1. Job', nextText: 'Next: Select Work Scope' },
-      { step: 2, short: '2. Scope', nextText: 'Next: Guided Hazard Scan' },
-      { step: 3, short: '3. Hazards', nextText: 'Next: Verify Controls & PPE' },
-      { step: 4, short: '4. Controls', nextText: 'Next: Tailboard & Job Note' },
-      { step: 5, short: '5. Sign-Off', nextText: 'Copy Job Note' }
-    ];
+    // APPLICATION STATE
+    let selectedScopes = new Set(['pump_pull']);
+    let selectedSystems = new Set(['well']);
+    let activeHazards = {}; // id -> boolean
+    let swaPassed = {};     // id -> boolean (true = safe, false = SWA triggered)
+    let manualSWA = false;
+    let activeControls = new Set();
+    let activePPE = new Set(['Safety Glasses', 'Gloves', 'Boots']);
 
-    // ---------------------------------------------------------------------------
-    // 2. APPLICATION STATE
-    // ---------------------------------------------------------------------------
-    let state = {
-      currentStep: 1,
-      jobDate: '',
-      jobWorkOrder: '',
-      jobCrew: '',
-      scopes: new Set(),
-      hazards: new Set(),
-      autoFlaggedHazards: new Set(),
-      manualHazardOverrides: {}, // id -> boolean if user manually toggled
-      controls: new Set(),
-      recommendedControls: new Set(),
-      manualControlOverrides: {},
-      ppe: new Set(['ppe_glasses', 'ppe_gloves', 'ppe_boots']),
-      recommendedPpe: new Set(['ppe_glasses', 'ppe_gloves', 'ppe_boots']),
-      manualPpeOverrides: {},
-      leadTechSign: '',
-      tailboardConfirmed: true,
-      auditorName: '',
-      auditResult: '' // 'PASS', 'COACHED', 'STOP WORK'
-    };
-
-    // ---------------------------------------------------------------------------
-    // 3. CONDITIONAL ENGINE: SCOPE -> HAZARDS -> CONTROLS & PPE
-    // ---------------------------------------------------------------------------
-    function recalculateConditionalLogic() {
-      // A. Compute Auto-Flagged Hazards from selected Work Scopes
-      const autoHaz = new Set();
-      state.scopes.forEach(scopeId => {
-        const scopeObj = WORK_SCOPES.find(s => s.id === scopeId);
-        if (scopeObj) {
-          scopeObj.autoHazards.forEach(h => autoHaz.add(h));
-        }
-      });
-      state.autoFlaggedHazards = autoHaz;
-
-      // Apply auto-hazards unless manually overridden by tech
-      HAZARDS.forEach(h => {
-        if (state.manualHazardOverrides.hasOwnProperty(h.id)) {
-          if (state.manualHazardOverrides[h.id]) {
-            state.hazards.add(h.id);
-          } else {
-            state.hazards.delete(h.id);
-          }
-        } else {
-          if (autoHaz.has(h.id)) {
-            state.hazards.add(h.id);
-          } else {
-            state.hazards.delete(h.id);
-          }
-        }
-      });
-
-      // B. Compute Recommended Controls based on Active Scopes & Active Hazards
-      const recControls = new Set();
-
-      // 1. Power Locked Out (LOTO)
-      if (
-        state.hazards.has('electrical_loto') ||
-        state.scopes.has('diagnostics') ||
-        state.scopes.has('pump_pull') ||
-        state.scopes.has('pressure_tank') ||
-        state.scopes.has('electrical_control')
-      ) {
-        recControls.add('loto_applied');
-      }
-
-      // 2. Truck/Outriggers Stabilized
-      if (
-        state.scopes.has('pump_pull') ||
-        state.scopes.has('trenching_pitless') ||
-        state.hazards.has('hoist_loads') ||
-        state.hazards.has('soft_ground') ||
-        state.hazards.has('trench_excavation')
-      ) {
-        recControls.add('truck_stabilized');
-      }
-
-      // 3. Exclusion Zone Set
-      if (
-        state.scopes.has('pump_pull') ||
-        state.scopes.has('trenching_pitless') ||
-        state.hazards.has('hoist_loads') ||
-        state.hazards.has('trench_excavation') ||
-        state.hazards.has('traffic_exposure') ||
-        state.hazards.has('winch_pinch')
-      ) {
-        recControls.add('exclusion_zone');
-      }
-
-      // 4. Pets/Bystanders Secured
-      if (state.hazards.has('customer_pets_septic')) {
-        recControls.add('pets_bystanders_secured');
-      }
-
-      // 5. Spotter Assigned
-      if (
-        state.hazards.has('overhead_lines') ||
-        state.hazards.has('hoist_loads') ||
-        state.hazards.has('traffic_exposure') ||
-        state.hazards.has('confined_space') ||
-        state.hazards.has('trench_excavation')
-      ) {
-        recControls.add('spotter_assigned');
-      }
-
-      state.recommendedControls = recControls;
-
-      // Apply recommended controls unless manually overridden
-      CONTROLS.forEach(c => {
-        if (state.manualControlOverrides.hasOwnProperty(c.id)) {
-          if (state.manualControlOverrides[c.id]) {
-            state.controls.add(c.id);
-          } else {
-            state.controls.delete(c.id);
-          }
-        } else {
-          if (recControls.has(c.id)) {
-            state.controls.add(c.id);
-          } else {
-            state.controls.delete(c.id);
-          }
-        }
-      });
-
-      // C. Compute Recommended PPE based on Active Scopes & Active Hazards
-      const recPpe = new Set(['ppe_glasses', 'ppe_gloves', 'ppe_boots']);
-
-      // Hard Hat (Machinery On / Boom Up)
-      if (
-        state.scopes.has('pump_pull') ||
-        state.scopes.has('trenching_pitless') ||
-        state.scopes.has('confined_space') ||
-        state.hazards.has('hoist_loads') ||
-        state.hazards.has('overhead_lines') ||
-        state.hazards.has('trench_excavation') ||
-        state.hazards.has('confined_space')
-      ) {
-        recPpe.add('ppe_hardhat');
-      }
-
-      // Hi-Vis Vest
-      if (
-        state.hazards.has('traffic_exposure') ||
-        state.scopes.has('trenching_pitless') ||
-        state.hazards.has('trench_excavation')
-      ) {
-        recPpe.add('ppe_hivis');
-      }
-
-      // Hearing / Resp.
-      if (
-        state.scopes.has('confined_space') ||
-        state.scopes.has('trenching_pitless') ||
-        state.scopes.has('pump_pull') ||
-        state.hazards.has('confined_space') ||
-        state.hazards.has('chemicals_bio')
-      ) {
-        recPpe.add('ppe_hearing_resp');
-      }
-
-      state.recommendedPpe = recPpe;
-
-      PPE_ITEMS.forEach(p => {
-        if (state.manualPpeOverrides.hasOwnProperty(p.id)) {
-          if (state.manualPpeOverrides[p.id]) {
-            state.ppe.add(p.id);
-          } else {
-            state.ppe.delete(p.id);
-          }
-        } else {
-          if (recPpe.has(p.id)) {
-            state.ppe.add(p.id);
-          } else {
-            state.ppe.delete(p.id);
-          }
-        }
-      });
-
-      saveStateToLocal();
-      renderAll();
+    function initApp() {
+      document.getElementById('jobDate').valueAsDate = new Date();
+      renderScopesAndSystems();
+      recalculateDefaults();
     }
 
-    // ---------------------------------------------------------------------------
-    // 4. INTERACTION HANDLERS
-    // ---------------------------------------------------------------------------
-    function toggleScope(scopeId) {
-      if (state.scopes.has(scopeId)) {
-        state.scopes.delete(scopeId);
-      } else {
-        state.scopes.add(scopeId);
-      }
-      recalculateConditionalLogic();
-    }
-
-    function setHazardState(hazardId, isPresent) {
-      state.manualHazardOverrides[hazardId] = isPresent;
-      recalculateConditionalLogic();
-    }
-
-    function reapplyScopeDefaults() {
-      state.manualHazardOverrides = {};
-      recalculateConditionalLogic();
-      showToast('Synced hazards with your selected Work Scope!');
-    }
-
-    function toggleControl(controlId) {
-      const nextVal = !state.controls.has(controlId);
-      state.manualControlOverrides[controlId] = nextVal;
-      recalculateConditionalLogic();
-    }
-
-    function reapplyRecommendedControls() {
-      state.manualControlOverrides = {};
-      state.manualPpeOverrides = {};
-      recalculateConditionalLogic();
-      showToast('All recommended Controls & PPE verified!');
-    }
-
-    function togglePpe(ppeId) {
-      const nextVal = !state.ppe.has(ppeId);
-      state.manualPpeOverrides[ppeId] = nextVal;
-      recalculateConditionalLogic();
-    }
-
-    function appendCrewTag(tagText) {
-      const input = document.getElementById('jobCrew');
-      const current = input.value.trim();
-      input.value = current ? `${current}, ${tagText}` : tagText;
-      syncStateFromInputs();
-    }
-
-    function syncStateFromInputs() {
-      state.jobDate = document.getElementById('jobDate').value;
-      state.jobWorkOrder = document.getElementById('jobWorkOrder').value.trim();
-      state.jobCrew = document.getElementById('jobCrew').value.trim();
-      state.leadTechSign = document.getElementById('leadTechSign').value.trim();
-      state.tailboardConfirmed = document.getElementById('tailboardConfirmed').checked;
-      state.auditorName = document.getElementById('auditorName').value.trim();
-
-      // Auto-populate Lead Tech Sign-Off from Crew if still blank
-      if (!state.leadTechSign && state.jobCrew && state.currentStep === 5) {
-        const firstTech = state.jobCrew.split(',')[0].trim();
-        state.leadTechSign = firstTech;
-        document.getElementById('leadTechSign').value = firstTech;
-      }
-
-      saveStateToLocal();
-      renderSummaryAndPrintable();
-    }
-
-    function setAuditResult(resultVal) {
-      state.auditResult = state.auditResult === resultVal ? '' : resultVal;
-      saveStateToLocal();
-      renderSummaryAndPrintable();
-    }
-
-    function toggleAuditorPanel() {
-      const panel = document.getElementById('auditorPanel');
-      const chevron = document.getElementById('auditorChevron');
-      panel.classList.toggle('hidden');
-      chevron.classList.toggle('rotate-180');
-    }
-
-    // ---------------------------------------------------------------------------
-    // 5. RENDERING FUNCTIONS
-    // ---------------------------------------------------------------------------
-    function renderAll() {
-      renderStepTabs();
-      renderScopes();
-      renderHazards();
-      renderControlsAndPpe();
-      renderSummaryAndPrintable();
-      updateNavigationUI();
-    }
-
-    function renderStepTabs() {
-      const container = document.getElementById('stepTabsContainer');
-      container.innerHTML = STEP_META.map(m => {
-        const isCurrent = state.currentStep === m.step;
-        const isDone = m.step < state.currentStep;
-        let btnClass = 'bg-slate-900 text-slate-400 border-slate-800';
-        if (isCurrent) {
-          btnClass = 'bg-amber-500 text-slate-950 border-amber-400 font-black shadow-sm';
-        } else if (isDone) {
-          btnClass = 'bg-slate-800 text-amber-400 border-slate-700 font-bold';
-        }
-        return `
-          <button type="button" onclick="goToStep(${m.step})"
-            class="py-2 px-1 rounded-lg border text-[11px] sm:text-xs transition truncate flex items-center justify-center gap-1 ${btnClass}">
-            ${isDone ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
-            <span>${m.short}</span>
-          </button>
-        `;
-      }).join('');
-    }
-
-    function renderScopes() {
-      const grid = document.getElementById('scopeGrid');
-      grid.innerHTML = WORK_SCOPES.map(s => {
-        const active = state.scopes.has(s.id);
+    function renderScopesAndSystems() {
+      const scopeEl = document.getElementById('scopeContainer');
+      scopeEl.innerHTML = SCOPES.map(s => {
+        const active = selectedScopes.has(s.id);
         return `
           <button type="button" onclick="toggleScope('${s.id}')"
-            class="text-left p-4 rounded-2xl border-2 transition-all flex items-start gap-3.5 ${
-              active
-                ? 'border-amber-500 bg-amber-50/90 shadow-md ring-2 ring-amber-400/50'
-                : 'border-slate-200 bg-white hover:border-slate-300'
+            class="px-3 py-2.5 rounded-lg text-xs font-bold border text-left transition flex items-center justify-between ${
+              active ? 'bg-amber-500 text-slate-950 border-amber-400 shadow' : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500'
             }">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 ${
-              active ? 'bg-amber-500 text-slate-950' : 'bg-slate-100 text-slate-600'
-            }">
-              <i class="fa-solid ${s.icon}"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between gap-2">
-                <span class="font-extrabold text-base text-slate-900">${s.label}</span>
-                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs ${
-                  active ? 'bg-green-600 text-white' : 'border-2 border-slate-300 text-transparent'
-                }">
-                  <i class="fa-solid fa-check"></i>
-                </span>
-              </div>
-              <p class="text-xs text-slate-500 mt-1 leading-snug">${s.desc}</p>
-            </div>
+            <span>${s.label}</span>
+            <span>${active ? '✓' : ''}</span>
           </button>
         `;
       }).join('');
 
-      // Update Scope Preview Box
-      const countBadge = document.getElementById('scopeCountBadge');
-      const previewText = document.getElementById('scopePreviewText');
-      countBadge.textContent = `${state.scopes.size} selected`;
+      const sysEl = document.getElementById('systemContainer');
+      sysEl.innerHTML = SYSTEMS.map(sys => {
+        const active = selectedSystems.has(sys.id);
+        return `
+          <button type="button" onclick="toggleSystem('${sys.id}')"
+            class="px-3 py-2 rounded-lg text-xs font-bold border text-left transition flex items-center justify-between ${
+              active ? 'bg-sky-500 text-slate-950 border-sky-400 shadow' : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500'
+            }">
+            <span>${sys.label}</span>
+            <span>${active ? '✓' : ''}</span>
+          </button>
+        `;
+      }).join('');
 
-      if (state.scopes.size === 0) {
-        previewText.innerHTML = `Tap at least one work scope above to automatically configure your hazard scan and safety controls.`;
-      } else {
-        const flaggedNames = Array.from(state.autoFlaggedHazards).map(hid => {
-          const h = HAZARDS.find(item => item.id === hid);
-          return h ? `<span class="inline-block bg-amber-500/20 border border-amber-400/40 text-amber-300 px-2 py-0.5 rounded-md font-semibold text-xs mr-1.5 mb-1.5">${h.label}</span>` : '';
-        }).join('');
-        previewText.innerHTML = `<div class="mb-1.5 text-xs text-slate-300">Pre-checked for Step 3 based on your scope:</div><div>${flaggedNames}</div>`;
-      }
+      // Check if any selected scope uses a boom/mast/excavator
+      const needsBoomWarning = SCOPES.some(s => selectedScopes.has(s.id) && s.boom);
+      document.getElementById('boomWarningBanner').classList.toggle('hidden', !needsBoomWarning);
     }
 
-    function renderHazards() {
-      // Show critical boom warning if Pump Pull or Hoist or Overhead Lines active
-      const boomBanner = document.getElementById('boomWarningBanner');
-      if (state.scopes.has('pump_pull') || state.hazards.has('hoist_loads') || state.hazards.has('overhead_lines')) {
-        boomBanner.classList.remove('hidden');
-      } else {
-        boomBanner.classList.add('hidden');
+    function toggleScope(id) {
+      if (selectedScopes.has(id)) selectedScopes.delete(id);
+      else selectedScopes.add(id);
+      renderScopesAndSystems();
+      recalculateDefaults();
+    }
+
+    function toggleSystem(id) {
+      if (selectedSystems.has(id)) selectedSystems.delete(id);
+      else selectedSystems.add(id);
+      renderScopesAndSystems();
+      recalculateDefaults();
+    }
+
+    function recalculateDefaults() {
+      HAZARDS.forEach(h => {
+        const matchScope = h.defaultScopes && h.defaultScopes.some(s => selectedScopes.has(s));
+        const matchSys = h.defaultSystems && h.defaultSystems.some(sys => selectedSystems.has(sys));
+        activeHazards[h.id] = Boolean(matchScope || matchSys);
+        if (swaPassed[h.id] === undefined) swaPassed[h.id] = true;
+      });
+      syncControlsAndPPE();
+      renderQuestions();
+      updateSummary();
+    }
+
+    function setHazardAnswer(id, isPresent) {
+      activeHazards[id] = isPresent;
+      if (isPresent && swaPassed[id] === undefined) {
+        swaPassed[id] = true;
       }
+      syncControlsAndPPE();
+      renderQuestions();
+      updateSummary();
+    }
 
-      const activeCounter = document.getElementById('hazardActiveCounter');
-      activeCounter.textContent = `${state.hazards.size} of ${HAZARDS.length} Present`;
+    function setSwaCheck(id, isSafe) {
+      swaPassed[id] = isSafe;
+      renderQuestions();
+      updateSummary();
+    }
 
-      const listContainer = document.getElementById('hazardListContainer');
-      listContainer.innerHTML = HAZARDS.map((h, idx) => {
-        const isPresent = state.hazards.has(h.id);
-        const isAutoFlagged = state.autoFlaggedHazards.has(h.id);
+    function triggerManualSWA() {
+      manualSWA = !manualSWA;
+      updateSummary();
+    }
 
+    function syncControlsAndPPE() {
+      activeControls = new Set();
+      activePPE = new Set(['Safety Glasses', 'Gloves', 'Boots']);
+      HAZARDS.forEach(h => {
+        if (activeHazards[h.id]) {
+          (h.controls || []).forEach(c => activeControls.add(c));
+          (h.ppe || []).forEach(p => activePPE.add(p));
+        }
+      });
+      renderControlsAndPPE();
+    }
+
+    function renderQuestions() {
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = HAZARDS.map(h => {
+        const isYes = activeHazards[h.id];
+        const isSafe = swaPassed[h.id] !== false;
         return `
-          <div class="rounded-2xl border-2 p-3.5 sm:p-4 transition-all ${
-            isPresent
-              ? 'border-amber-500 bg-amber-50/70 shadow-sm'
-              : 'border-slate-200 bg-white'
+          <div class="p-3 rounded-lg border transition ${
+            isYes ? 'bg-slate-900 border-amber-500/60' : 'bg-slate-900/40 border-slate-700/70'
           }">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-base shrink-0 mt-0.5 ${
-                  isPresent ? 'bg-amber-500 text-slate-950' : 'bg-slate-100 text-slate-500'
-                }">
-                  <i class="fa-solid ${h.icon}"></i>
-                </div>
-                <div>
-                  <div class="flex flex-wrap items-center gap-1.5">
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">#${idx + 1}</span>
-                    <h3 class="font-extrabold text-sm sm:text-base text-slate-900">${h.label}</h3>
-                    ${
-                      isAutoFlagged
-                        ? `<span class="auto-badge bg-amber-200 text-amber-950 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full border border-amber-400">Scope Auto-Flagged</span>`
-                        : ''
-                    }
-                  </div>
-                  <p class="text-xs sm:text-sm font-medium text-slate-700 mt-1">${h.question}</p>
-                  ${
-                    isPresent
-                      ? `<p class="text-xs text-amber-900 bg-amber-100/90 border border-amber-300 rounded-lg px-2.5 py-1.5 mt-2 flex items-center gap-1.5 font-medium">
-                          <i class="fa-solid fa-shield-cat text-amber-700"></i>
-                          <span>${h.tip}</span>
-                        </p>`
-                      : ''
-                  }
-                </div>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <span class="text-xs font-bold uppercase text-amber-400">${h.title}</span>
+                <p class="text-sm font-medium text-white">${h.question}</p>
               </div>
-
-              <!-- Big Glove-Friendly YES / NO Toggle Pill -->
-              <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center bg-slate-100 p-1 rounded-xl border border-slate-200">
-                <button type="button" onclick="setHazardState('${h.id}', true)"
-                  class="px-4 py-2 rounded-lg font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 ${
-                    isPresent
-                      ? 'bg-amber-500 text-slate-950 shadow'
-                      : 'text-slate-500 hover:text-slate-800'
-                  }">
-                  <i class="fa-solid fa-triangle-exclamation"></i> YES
-                </button>
-                <button type="button" onclick="setHazardState('${h.id}', false)"
-                  class="px-4 py-2 rounded-lg font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 ${
-                    !isPresent
-                      ? 'bg-slate-800 text-white shadow'
-                      : 'text-slate-500 hover:text-slate-800'
-                  }">
-                  NO
-                </button>
+              <div class="flex gap-2 shrink-0">
+                <button type="button" onclick="setHazardAnswer('${h.id}', true)"
+                  class="px-4 py-1.5 rounded font-bold text-xs ${
+                    isYes ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-400 border border-slate-700'
+                  }">YES</button>
+                <button type="button" onclick="setHazardAnswer('${h.id}', false)"
+                  class="px-4 py-1.5 rounded font-bold text-xs ${
+                    !isYes ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 border border-slate-700'
+                  }">NO</button>
               </div>
             </div>
+
+            ${isYes && h.swaCheck ? `
+              <div class="mt-3 pt-2.5 border-t border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${
+                isSafe ? 'text-emerald-300' : 'text-red-300'
+              }">
+                <p class="text-xs font-semibold">🛡️ ${h.swaCheck.question}</p>
+                <div class="flex gap-2 shrink-0">
+                  <button type="button" onclick="setSwaCheck('${h.id}', true)"
+                    class="px-3 py-1 rounded text-xs font-bold ${
+                      isSafe ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 border border-slate-700'
+                    }">VERIFIED SAFE</button>
+                  <button type="button" onclick="setSwaCheck('${h.id}', false)"
+                    class="px-3 py-1 rounded text-xs font-bold ${
+                      !isSafe ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-800 text-slate-400 border border-slate-700'
+                    }">NOT READY (STOP WORK)</button>
+                </div>
+              </div>
+            ` : ''}
           </div>
         `;
       }).join('');
     }
 
-    function renderControlsAndPpe() {
-      // Check if any recommended control is currently unchecked
-      let missingRec = false;
-      state.recommendedControls.forEach(cid => {
-        if (!state.controls.has(cid)) missingRec = true;
-      });
-      const alertEl = document.getElementById('unverifiedControlAlert');
-      if (missingRec) {
-        alertEl.classList.remove('hidden');
-      } else {
-        alertEl.classList.add('hidden');
+    function renderControlsAndPPE() {
+      const ctrlEl = document.getElementById('controlsContainer');
+      ctrlEl.innerHTML = ALL_CONTROLS.map(c => {
+        const checked = activeControls.has(c);
+        return `
+          <label class="flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer ${
+            checked ? 'bg-emerald-950/60 border-emerald-500/60 text-emerald-200 font-semibold' : 'bg-slate-900 border-slate-700 text-slate-400'
+          }">
+            <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleControl('${c}')" class="accent-emerald-500 w-4 h-4" />
+            <span>${c}</span>
+          </label>
+        `;
+      }).join('');
+
+      const ppeEl = document.getElementById('ppeContainer');
+      ppeEl.innerHTML = ALL_PPE.map(p => {
+        const checked = activePPE.has(p);
+        return `
+          <label class="flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer ${
+            checked ? 'bg-sky-950/60 border-sky-500/60 text-sky-200 font-semibold' : 'bg-slate-900 border-slate-700 text-slate-400'
+          }">
+            <input type="checkbox" ${checked ? 'checked' : ''} onchange="togglePPE('${p}')" class="accent-sky-500 w-4 h-4" />
+            <span>${p}</span>
+          </label>
+        `;
+      }).join('');
+    }
+
+    function toggleControl(c) {
+      if (activeControls.has(c)) activeControls.delete(c);
+      else activeControls.add(c);
+      renderControlsAndPPE();
+      updateSummary();
+    }
+
+    function togglePPE(p) {
+      if (activePPE.has(p)) activePPE.delete(p);
+      else activePPE.add(p);
+      renderControlsAndPPE();
+      updateSummary();
+    }
+
+    function updateSummary() {
+      // Check SWA triggers
+      const swaReasons = [];
+      if (manualSWA) {
+        swaReasons.push('Manual Stop Work Authority activated by crew member.');
       }
-
-      // Render Controls (Step 15)
-      const controlsGrid = document.getElementById('controlsGrid');
-      controlsGrid.innerHTML = CONTROLS.map(c => {
-        const checked = state.controls.has(c.id);
-        const isRec = state.recommendedControls.has(c.id);
-        return `
-          <button type="button" onclick="toggleControl('${c.id}')"
-            class="w-full text-left p-3.5 sm:p-4 rounded-2xl border-2 transition-all flex items-center justify-between gap-3 ${
-              checked
-                ? 'border-green-600 bg-green-50/80 shadow-sm'
-                : isRec
-                ? 'border-amber-400 bg-amber-50/40'
-                : 'border-slate-200 bg-white hover:border-slate-300'
-            }">
-            <div class="flex items-center gap-3.5">
-              <div class="w-11 h-11 rounded-xl flex items-center justify-center text-lg shrink-0 ${
-                checked ? 'bg-green-600 text-white' : 'bg-slate-100 text-slate-500'
-              }">
-                <i class="fa-solid ${c.icon}"></i>
-              </div>
-              <div>
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="font-extrabold text-sm sm:text-base text-slate-900">${c.label}</span>
-                  ${
-                    isRec
-                      ? `<span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
-                          checked
-                            ? 'bg-green-200 text-green-900'
-                            : 'bg-amber-200 text-amber-900'
-                        }">Required by Hazards</span>`
-                      : ''
-                  }
-                </div>
-                <p class="text-xs text-slate-500 mt-0.5">${c.desc}</p>
-              </div>
-            </div>
-
-            <div class="w-8 h-8 rounded-xl flex items-center justify-center text-sm shrink-0 ${
-              checked
-                ? 'bg-green-600 text-white'
-                : 'border-2 border-slate-300 text-transparent'
-            }">
-              <i class="fa-solid fa-check"></i>
-            </div>
-          </button>
-        `;
-      }).join('');
-
-      // Render PPE (Step 16)
-      const ppeGrid = document.getElementById('ppeGrid');
-      ppeGrid.innerHTML = PPE_ITEMS.map(p => {
-        const checked = state.ppe.has(p.id);
-        const isRec = state.recommendedPpe.has(p.id);
-        return `
-          <button type="button" onclick="togglePpe('${p.id}')"
-            class="text-left p-3.5 rounded-2xl border-2 transition-all flex items-center justify-between gap-3 ${
-              checked
-                ? 'border-green-600 bg-green-50/80 shadow-sm'
-                : 'border-slate-200 bg-white hover:border-slate-300'
-            }">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center text-base shrink-0 ${
-                checked ? 'bg-green-600 text-white' : 'bg-slate-100 text-slate-500'
-              }">
-                <i class="fa-solid ${p.icon}"></i>
-              </div>
-              <div>
-                <div class="font-extrabold text-xs sm:text-sm text-slate-900 leading-snug">${p.label}</div>
-                ${
-                  isRec
-                    ? `<span class="text-[10px] font-bold text-green-700">${p.baseline ? 'Standard PPE' : 'Auto-Required'}</span>`
-                    : `<span class="text-[10px] text-slate-400">Optional</span>`
-                }
-              </div>
-            </div>
-            <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0 ${
-              checked ? 'bg-green-600 text-white' : 'border-2 border-slate-300 text-transparent'
-            }">
-              <i class="fa-solid fa-check"></i>
-            </div>
-          </button>
-        `;
-      }).join('');
-    }
-
-    // Builds the exact job note string from the packet (Steps 17 & 20)
-    function buildJobNoteText() {
-      const activeHazardLabels = HAZARDS
-        .filter(h => state.hazards.has(h.id))
-        .map(h => h.label);
-
-      const activeControlLabels = CONTROLS
-        .filter(c => state.controls.has(c.id))
-        .map(c => c.label);
-
-      const activePpeLabels = PPE_ITEMS
-        .filter(p => state.ppe.has(p.id))
-        .map(p => p.shortLabel);
-
-      const identifiedStr = activeHazardLabels.length > 0
-        ? activeHazardLabels.join(', ')
-        : 'Standard site conditions (no elevated hazards flagged)';
-
-      const combinedControlsAndPpe = [
-        ...activeControlLabels,
-        ...(activePpeLabels.length ? [`PPE (${activePpeLabels.join(', ')})`] : [])
-      ];
-
-      const controlledByStr = combinedControlsAndPpe.length > 0
-        ? combinedControlsAndPpe.join(', ')
-        : 'Standard safe work procedures';
-
-      return `"Completed job site hazard assessment prior to work. Identified: ${identifiedStr}. Controlled by: ${controlledByStr}."`;
-    }
-
-    function renderSummaryAndPrintable() {
-      const noteText = buildJobNoteText();
-      const noteBox = document.getElementById('generatedJobNoteBox');
-      if (noteBox) noteBox.textContent = noteText;
-
-      // Update Audit Result buttons
-      document.querySelectorAll('.audit-btn').forEach(btn => {
-        const val = btn.getAttribute('data-result');
-        if (state.auditResult === val) {
-          if (val === 'PASS') {
-            btn.className = 'audit-btn py-3 px-3 rounded-xl border-2 border-green-600 bg-green-100 font-extrabold text-xs sm:text-sm text-green-950 flex flex-col items-center gap-1 shadow-sm';
-          } else if (val === 'COACHED') {
-            btn.className = 'audit-btn py-3 px-3 rounded-xl border-2 border-amber-500 bg-amber-100 font-extrabold text-xs sm:text-sm text-amber-950 flex flex-col items-center gap-1 shadow-sm';
-          } else {
-            btn.className = 'audit-btn py-3 px-3 rounded-xl border-2 border-red-600 bg-red-100 font-extrabold text-xs sm:text-sm text-red-950 flex flex-col items-center gap-1 shadow-sm';
-          }
-        } else {
-          btn.className = 'audit-btn py-3 px-3 rounded-xl border-2 border-slate-300 bg-white font-extrabold text-xs sm:text-sm text-slate-700 flex flex-col items-center gap-1 transition';
+      HAZARDS.forEach(h => {
+        if (activeHazards[h.id] && h.swaCheck && swaPassed[h.id] === false) {
+          swaReasons.push(h.swaCheck.failReason);
         }
       });
 
-      // Helper for checkbox character in printable sheet
-      const chk = (isChecked) => isChecked ? '&#9745;' : '&#9744;';
+      const swaBanner = document.getElementById('swaBanner');
+      const swaReasonText = document.getElementById('swaReasonText');
+      const badge = document.getElementById('auditStatusBadge');
+      const resultSelect = document.getElementById('auditResult');
 
-      const identifiedList = HAZARDS.filter(h => state.hazards.has(h.id)).map(h => h.label).join(', ') || 'None flagged';
-      const controlledList = [
-        ...CONTROLS.filter(c => state.controls.has(c.id)).map(c => c.label),
-        ...PPE_ITEMS.filter(p => state.ppe.has(p.id)).map(p => p.shortLabel)
-      ].join(', ') || 'Standard procedures';
-
-      const sheetHTML = `
-        <div class="border-2 border-black p-4 bg-white text-black">
-          <div class="border-b-2 border-black pb-2 mb-3 flex items-start justify-between">
-            <div>
-              <div class="text-xs font-bold uppercase tracking-wider">TRADEWORKS FIELD SAFETY PACKET • PART 3</div>
-              <h1 class="text-base font-black uppercase">FIELD JHA & SAFETY AUDIT SHEET (FOR CREWS OR AUDITOR)</h1>
-            </div>
-            <div class="text-right text-xs font-semibold">
-              <div>Date: <span class="underline font-bold">${escapeHtml(state.jobDate || '____________')}</span></div>
-            </div>
-          </div>
-
-          <!-- Top Info Row -->
-          <div class="grid grid-cols-2 gap-3 border-b border-black pb-2.5 mb-2.5 text-xs">
-            <div><strong>Jobsite / Work Order #:</strong> <span class="underline">${escapeHtml(state.jobWorkOrder || '______________________')}</span></div>
-            <div><strong>Crew Members:</strong> <span class="underline">${escapeHtml(state.jobCrew || '______________________')}</span></div>
-          </div>
-
-          <!-- Planned Work Scope (Step 2) -->
-          <div class="border-b border-black pb-2.5 mb-2.5 text-xs">
-            <div class="font-bold mb-1">Planned Work Scope (Step 2):</div>
-            <div class="grid grid-cols-3 gap-1.5">
-              ${WORK_SCOPES.map(s => `
-                <div><span class="font-mono text-sm">${chk(state.scopes.has(s.id))}</span> ${s.label}</div>
-              `).join('')}
-            </div>
-          </div>
-
-          <!-- Pre-Work Hazard Scan (Steps 1-14) -->
-          <div class="border-b border-black pb-2.5 mb-2.5 text-xs">
-            <div class="font-bold mb-1">Pre-Work Hazard Scan (Steps 1–14 — Check All Present):</div>
-            <div class="grid grid-cols-2 gap-1.5">
-              ${HAZARDS.map(h => `
-                <div><span class="font-mono text-sm">${chk(state.hazards.has(h.id))}</span> ${h.label}</div>
-              `).join('')}
-            </div>
-          </div>
-
-          <!-- Controls & PPE Selected (Steps 15-16) -->
-          <div class="border-b border-black pb-2.5 mb-2.5 text-xs space-y-2">
-            <div>
-              <div class="font-bold mb-1">Controls Selected (Step 15):</div>
-              <div class="grid grid-cols-2 gap-1.5">
-                ${CONTROLS.map(c => `
-                  <div><span class="font-mono text-sm">${chk(state.controls.has(c.id))}</span> ${c.label}</div>
-                `).join('')}
-              </div>
-            </div>
-            <div>
-              <div class="font-bold mb-1">PPE Required Today (Step 16):</div>
-              <div class="grid grid-cols-3 gap-1.5">
-                ${PPE_ITEMS.map(p => `
-                  <div><span class="font-mono text-sm">${chk(state.ppe.has(p.id))}</span> ${p.label}</div>
-                `).join('')}
-              </div>
-            </div>
-          </div>
-
-          <!-- Crew Tailboard & Job Note Summary (Steps 17 & 20) -->
-          <div class="border-b border-black pb-3 mb-3 text-xs">
-            <div class="font-bold mb-1">Crew Tailboard & Job Note Summary (Steps 17 & 20):</div>
-            <div class="p-2 border border-black bg-slate-50 font-mono text-[11px] leading-relaxed">
-              "Completed job site hazard assessment prior to work.<br/>
-              <strong>Identified:</strong> ${escapeHtml(identifiedList)}.<br/>
-              <strong>Controlled by:</strong> ${escapeHtml(controlledList)}."
-            </div>
-          </div>
-
-          <!-- Sign-Off & Audit Row -->
-          <div class="grid grid-cols-3 gap-3 text-xs items-center pt-1">
-            <div>
-              <strong>Lead Tech Sign-Off:</strong><br/>
-              <span class="underline font-bold text-sm">${escapeHtml(state.leadTechSign || '____________________')}</span>
-            </div>
-            <div>
-              <strong>Auditor (If Observed):</strong><br/>
-              <span class="underline font-bold text-sm">${escapeHtml(state.auditorName || '____________________')}</span>
-            </div>
-            <div>
-              <strong>Result:</strong><br/>
-              <span>${chk(state.auditResult === 'PASS')} PASS</span> &nbsp;
-              <span>${chk(state.auditResult === 'COACHED')} COACHED</span> &nbsp;
-              <span>${chk(state.auditResult === 'STOP WORK')} STOP WORK</span>
-            </div>
-          </div>
-        </div>
-      `;
-
-      const onScreenPreview = document.getElementById('onScreenSheetPreview');
-      if (onScreenPreview) onScreenPreview.innerHTML = sheetHTML;
-
-      const printableContainer = document.getElementById('printableAuditSheet');
-      if (printableContainer) printableContainer.innerHTML = sheetHTML;
-    }
-
-    // ---------------------------------------------------------------------------
-    // 6. STEP NAVIGATION & CLIPBOARD UTILITIES
-    // ---------------------------------------------------------------------------
-    function goToStep(stepNum) {
-      syncStateFromInputs();
-      state.currentStep = Math.max(1, Math.min(5, stepNum));
-
-      document.querySelectorAll('.step-section').forEach((sec, idx) => {
-        if (idx + 1 === state.currentStep) {
-          sec.classList.remove('hidden');
-        } else {
-          sec.classList.add('hidden');
-        }
-      });
-
-      renderAll();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function navigateStep(delta) {
-      if (state.currentStep === 5 && delta > 0) {
-        copyJobNoteToClipboard();
-        return;
-      }
-      goToStep(state.currentStep + delta);
-    }
-
-    function updateNavigationUI() {
-      const prevBtn = document.getElementById('prevStepBtn');
-      const nextBtnLabel = document.getElementById('nextStepBtnLabel');
-      const nextBtnIcon = document.getElementById('nextStepBtnIcon');
-      const statusText = document.getElementById('bottomStatusText');
-
-      prevBtn.disabled = state.currentStep === 1;
-      statusText.textContent = `Step ${state.currentStep} of 5`;
-
-      const meta = STEP_META.find(m => m.step === state.currentStep);
-      nextBtnLabel.textContent = meta ? meta.nextText : 'Next';
-
-      if (state.currentStep === 5) {
-        nextBtnIcon.className = 'fa-solid fa-copy';
+      if (swaReasons.length > 0) {
+        swaBanner.classList.remove('hidden');
+        swaReasonText.innerHTML = swaReasons.map(r => `• ${r}`).join('<br>');
+        badge.textContent = '🛑 STOP WORK AUTHORITY ACTIVE';
+        badge.className = 'text-xs font-bold px-2.5 py-1 rounded bg-red-600 text-white animate-pulse';
+        resultSelect.value = 'STOP WORK';
       } else {
-        nextBtnIcon.className = 'fa-solid fa-arrow-right';
+        swaBanner.classList.add('hidden');
+        badge.textContent = 'PASS - READY FOR WORK';
+        badge.className = 'text-xs font-bold px-2.5 py-1 rounded bg-emerald-600 text-white';
+        if (resultSelect.value === 'STOP WORK') resultSelect.value = 'PASS';
       }
+
+      const hazardNames = HAZARDS.filter(h => activeHazards[h.id]).map(h => h.title.replace(' (High Risk)', '').replace(' (Moderate/High)', ''));
+      const controlsList = Array.from(activeControls);
+      const ppeList = Array.from(activePPE);
+      const scopeLabels = SCOPES.filter(s => selectedScopes.has(s.id)).map(s => s.label);
+      const sysLabels = SYSTEMS.filter(s => selectedSystems.has(s.id)).map(s => s.label);
+
+      const statusText = swaReasons.length > 0 ? 'STOP WORK TRIGGERED' : 'SAFE TO PROCEED';
+      const note = `"Completed job site hazard assessment prior to work (${statusText}). Scope: ${scopeLabels.join(', ') || 'General'} [${sysLabels.join(', ') || 'Standard'}]. Identified: ${hazardNames.join(', ') || 'Standard site hazards'}. Controlled by: ${controlsList.join(', ') || 'Standard procedures'}. PPE: ${ppeList.join(', ')}. SWA briefed with crew."`;
+
+      document.getElementById('jobNoteOutput').value = note;
+
+      // Sync Printable View
+      document.getElementById('printDate').textContent = document.getElementById('jobDate').value || '—';
+      document.getElementById('printWO').textContent = document.getElementById('workOrder').value || '—';
+      document.getElementById('printCrew').textContent = document.getElementById('crewNames').value || '—';
+      document.getElementById('printScopes').textContent = scopeLabels.join(', ') || '—';
+      document.getElementById('printSystems').textContent = sysLabels.join(', ') || '—';
+      document.getElementById('printHazards').innerHTML = (hazardNames.length ? hazardNames : ['None Identified']).map(h => `<li>${h}</li>`).join('');
+      document.getElementById('printControls').textContent = controlsList.join(', ') || 'None';
+      document.getElementById('printPPE').textContent = ppeList.join(', ') || 'None';
+      document.getElementById('printJobNote').textContent = note;
+      document.getElementById('printLead').textContent = document.getElementById('leadSign').value || '________________';
+      document.getElementById('printAuditor').textContent = document.getElementById('auditorName').value || '________________';
+      document.getElementById('printResult').textContent = resultSelect.value;
     }
 
-    function copyJobNoteToClipboard() {
-      syncStateFromInputs();
-      const rawNote = buildJobNoteText().replace(/^"|"$/g, '');
-      const fullClip = `${rawNote} (Lead Tech: ${state.leadTechSign || state.jobCrew || 'Verified'})`;
-
-      // Use fallback-safe copy method for mobile & iframe environments
-      const tempArea = document.createElement('textarea');
-      tempArea.value = fullClip;
-      tempArea.style.position = 'fixed';
-      tempArea.style.left = '-9999px';
-      document.body.appendChild(tempArea);
-      tempArea.focus();
-      tempArea.select();
-
-      try {
-        document.execCommand('copy');
-        showToast('Job Note copied! Ready to paste into Work Order.');
-      } catch (err) {
-        showToast('Select the yellow text box to copy manually.');
-      }
-      document.body.removeChild(tempArea);
+    function copyJobNote() {
+      const noteEl = document.getElementById('jobNoteOutput');
+      noteEl.select();
+      navigator.clipboard.writeText(noteEl.value);
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '✅ Copied to Clipboard!';
+      setTimeout(() => { btn.textContent = '📋 Copy Job Note to Clipboard'; }, 2000);
     }
 
-    function showToast(msg) {
-      const toast = document.getElementById('toastBanner');
-      const text = document.getElementById('toastMessage');
-      text.textContent = msg;
-      toast.classList.remove('hidden');
-      clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => {
-        toast.classList.add('hidden');
-      }, 3000);
-    }
-
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
-    // ---------------------------------------------------------------------------
-    // 7. MODALS & LOCAL STORAGE PERSISTENCE
-    // ---------------------------------------------------------------------------
-    function openGithubModal() {
-      document.getElementById('githubModal').classList.remove('hidden');
-    }
-    function closeGithubModal() {
-      document.getElementById('githubModal').classList.add('hidden');
-    }
-    function confirmResetModal() {
-      document.getElementById('resetModal').classList.remove('hidden');
-    }
-    function closeResetModal() {
-      document.getElementById('resetModal').classList.add('hidden');
-    }
-
-    function resetForNewJob() {
-      const todayStr = new Date().toISOString().split('T')[0];
-      state = {
-        currentStep: 1,
-        jobDate: todayStr,
-        jobWorkOrder: '',
-        jobCrew: state.jobCrew, // keep crew names for convenience on next call
-        scopes: new Set(),
-        hazards: new Set(),
-        autoFlaggedHazards: new Set(),
-        manualHazardOverrides: {},
-        controls: new Set(),
-        recommendedControls: new Set(),
-        manualControlOverrides: {},
-        ppe: new Set(['ppe_glasses', 'ppe_gloves', 'ppe_boots']),
-        recommendedPpe: new Set(['ppe_glasses', 'ppe_gloves', 'ppe_boots']),
-        manualPpeOverrides: {},
-        leadTechSign: state.leadTechSign,
-        tailboardConfirmed: true,
-        auditorName: '',
-        auditResult: ''
-      };
-
-      document.getElementById('jobDate').value = state.jobDate;
-      document.getElementById('jobWorkOrder').value = '';
+    function resetForm() {
+      selectedScopes = new Set(['pump_pull']);
+      selectedSystems = new Set(['well']);
+      swaPassed = {};
+      manualSWA = false;
+      document.getElementById('workOrder').value = '';
+      document.getElementById('crewNames').value = '';
+      document.getElementById('leadSign').value = '';
       document.getElementById('auditorName').value = '';
-
-      closeResetModal();
-      recalculateConditionalLogic();
-      goToStep(1);
-      showToast('Started fresh JHA for your next job!');
+      renderScopesAndSystems();
+      recalculateDefaults();
     }
 
-    function saveStateToLocal() {
-      try {
-        const serializable = {
-          jobDate: state.jobDate,
-          jobWorkOrder: state.jobWorkOrder,
-          jobCrew: state.jobCrew,
-          scopes: Array.from(state.scopes),
-          manualHazardOverrides: state.manualHazardOverrides,
-          manualControlOverrides: state.manualControlOverrides,
-          manualPpeOverrides: state.manualPpeOverrides,
-          leadTechSign: state.leadTechSign,
-          tailboardConfirmed: state.tailboardConfirmed,
-          auditorName: state.auditorName,
-          auditResult: state.auditResult
-        };
-        localStorage.setItem('tradeworks_jha_state_v1', JSON.stringify(serializable));
-      } catch (e) {
-        // Ignore storage errors in private browsing
-      }
-    }
-
-    function loadStateFromLocal() {
-      const todayStr = new Date().toISOString().split('T')[0];
-      state.jobDate = todayStr;
-
-      try {
-        const raw = localStorage.getItem('tradeworks_jha_state_v1');
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          state.jobDate = parsed.jobDate || todayStr;
-          state.jobWorkOrder = parsed.jobWorkOrder || '';
-          state.jobCrew = parsed.jobCrew || '';
-          state.scopes = new Set(parsed.scopes || []);
-          state.manualHazardOverrides = parsed.manualHazardOverrides || {};
-          state.manualControlOverrides = parsed.manualControlOverrides || {};
-          state.manualPpeOverrides = parsed.manualPpeOverrides || {};
-          state.leadTechSign = parsed.leadTechSign || '';
-          state.tailboardConfirmed = parsed.tailboardConfirmed !== false;
-          state.auditorName = parsed.auditorName || '';
-          state.auditResult = parsed.auditResult || '';
-        }
-      } catch (e) {
-        // Ignore parse errors
-      }
-
-      document.getElementById('jobDate').value = state.jobDate;
-      document.getElementById('jobWorkOrder').value = state.jobWorkOrder;
-      document.getElementById('jobCrew').value = state.jobCrew;
-      document.getElementById('leadTechSign').value = state.leadTechSign;
-      document.getElementById('tailboardConfirmed').checked = state.tailboardConfirmed;
-      document.getElementById('auditorName').value = state.auditorName;
-    }
-
-    // Initialize on load
-    window.onload = function () {
-      loadStateFromLocal();
-      recalculateConditionalLogic();
-      goToStep(1);
-    };
+    initApp();
   </script>
 </body>
 </html>
